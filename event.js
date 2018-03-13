@@ -32585,7 +32585,9 @@ function getFile(filePath, type) {
             eventFn = eventObj.eventFn;
             //根据不同的标记事件 动态调用不同的处理函数
             try {
-                eventFn && ownElementFn[event.type][eventFn](target, event, parentTarget);
+                if(eventFn) {
+					ownElementFn[event.type][eventFn](target, event, parentTarget);
+				}
             } catch (e) {
                 console.error(e.stack);
             }
@@ -32780,7 +32782,7 @@ function getFile(filePath, type) {
          */
         "mouseout": function (target, event, relatedTarget) {
             //隐藏遮罩 使用节流函数 处理鼠标移动频率快的情况
-            Util.throttle(moveDialog, moveDialog.hide, relatedTarget);
+            //Util.throttle(moveDialog, moveDialog.hide, relatedTarget);
         }
     };
 
@@ -32833,6 +32835,13 @@ function getFile(filePath, type) {
                     this["setting-event-cancel"]();
                 }
             },
+			
+			"rightclick": function() {
+				
+				alert('click')
+			},
+			
+			
             /**
              * 展开 event list
              */
@@ -33456,6 +33465,698 @@ function getFile(filePath, type) {
             }
         }
     };
+	
+	
+	
+	var html = `
+	<!--
+    altTemplate js 模板
+    https://github.com/aui/artTemplate
+ -->
+
+
+<!-- 主体 模板 svg, 半透明遮罩层, toolbar , 曲线 , 点击后在元素上覆盖的遮罩, 鼠标移动时的 border 框 -->
+<script id="pt-template-main" type="text/html">
+
+    <div style="display: none">
+        <svg xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <rect id="pt-icon-platform-PC-SVGID_1_" x="-692" y="-444" width="1440" height="900"/>
+                <rect id="pt-icon-platform-others-SVGID_1_" x="-692" y="-444" width="1440" height="900"/>
+                <rect id="pt-icon-platform-phone-SVGID_1_" x="-692" y="-444" width="1440" height="900"/>
+                <rect id="pt-icon-platform-tablet-SVGID_1_" x="-692" y="-444" width="1440" height="900"/>
+            </defs>
+            <symbol viewBox="0 0 104 26" id="pt-icon-header-logo"><title>pt-icon-header-logo</title>
+                <g>
+                    <path fill="#FFFFFF" d="M7.8,0.4c-1.9,0-3.7,0.7-5.1,2c-1.4,1.4-2.2,3-2.2,4.9v11.1c0,0,0,0,0,0c0,0.8,0.4,1.5,1.2,1.5
+      c0.8,0,1.2-0.7,1.2-1.5c0,0,0,0,0,0V13c1.8,0.9,2.9,1.4,4.5,1.4c1.9,0,3.8-0.7,5.1-2.1c1.4-1.4,2.1-3,2.1-4.9c0-1.9-0.6-3.6-2-4.9
+      C11.3,1.1,9.7,0.4,7.8,0.4z M10.8,10.4c-0.8,0.8-1.8,1.2-3,1.2c-1.2,0-2.1-0.4-3-1.2C4,9.5,3.6,8.6,3.6,7.4c0-1.2,0.4-2.1,1.2-3
+      c0.8-0.8,1.8-1.2,3-1.2c1.2,0,2.1,0.4,3,1.2c0.8,0.8,1.2,1.8,1.2,3C12,8.6,11.6,9.5,10.8,10.4z"/> <path fill="#B2CF07" d="M62.2,6c-1.9,0-3.6,0.7-4.9,2.1c-1.4,1.4-2.1,3-2.1,4.9c0,1.9,0.7,3.6,2.1,4.9c1.4,1.4,3,2,4.9,2
+      c1.6,0,3-0.5,4.2-1.4c0,1.1-0.4,2.1-1.2,3c-0.8,0.8-1.4,1.2-2.9,1.2c0,0-0.5,0-0.6,0.1c-0.2,0.1-0.4,0.2-0.5,0.3c0,0,0,0,0,0
+      c0,0,0,0-0.1,0.1c0,0,0,0,0,0c0,0,0,0-0.1,0.1c0,0,0,0,0,0c0,0,0,0,0,0.1c0,0,0,0,0,0.1c0,0,0,0.1,0,0.1c0,0,0,0,0,0.1c0,0,0,0,0,0
+      c0,0,0,0,0,0.1c0,0,0,0,0,0.1c0,0,0,0,0,0.1c0,0,0,0,0,0c0,0,0,0.1,0,0.1c0,0,0,0,0,0c0,0,0,0.1,0,0.1c0,0.8,0.6,1.4,1.4,1.4
+      c0,0,0,0,0,0c0,0,0,0,0,0c2,0,3.3-0.7,4.6-2.1c1.4-1.4,1.7-3,1.7-4.9V13c0-1.9-0.3-3.6-1.7-4.9C65.5,6.7,64.1,6,62.2,6z M65.2,16
+      c-0.8,0.8-1.8,1.2-3,1.2c-1.2,0-2.1-0.4-3-1.2c-0.8-0.8-1.2-1.8-1.2-3c0-1.2,0.4-2.1,1.2-3c0.8-0.8,1.8-1.2,3-1.2
+      c1.2,0,2.1,0.4,3,1.2c0.8,0.8,1.2,1.8,1.2,3C66.4,14.2,66,15.1,65.2,16z"/> <circle fill="#B2CF07" cx="71.7" cy="2.8" r="1.7"/> <path fill="#FFFFFF" d="M23.1,17.2C23.1,17.2,23.1,17.2,23.1,17.2c-1,0-2.2-0.4-3-1.2c-0.8-0.8-1.4-1.8-1.4-3V8.7h3c0,0,0,0,0,0
+      l0,0c0.7,0,1.4-0.8,1.4-1.5c0-0.8-0.6-1.5-1.4-1.5c0,0,0,0,0,0h-3V2.5c0-0.1,0-1.6-1.5-1.6c-0.8,0-1.6,0.6-1.6,1.4
+      c0,0.1,0,0.1,0,0.2V13c0,1.9,0.9,3.6,2.3,4.9c1.2,1.2,2.7,1.8,4.2,2c0.1,0,0.4,0.1,0.7,0c0,0,0.1,0,0.1,0c0.8,0,1.4-0.6,1.4-1.4
+      C24.5,17.8,23.9,17.2,23.1,17.2z"/> <path fill="#B2CF07" d="M72.9,18.6l0-11.4c0,0,0-1.2-1.3-1.1c-1.1,0-1.2,1.1-1.2,1.1s0,11.3,0,11.4c0.1,1.4,1.3,1.4,1.3,1.4
+      C72.5,20.1,73,19.3,72.9,18.6z"/> <path fill="#B2CF07" d="M36.9,14.2c0.8,0,1.6-0.6,1.7-1.4c0.1-1-1.3-6.8-6.9-6.8c-1.9,0-3.5,0.7-4.9,2.1c-1.4,1.4-2,3-2,5
+      c0,1.9,0.7,3.6,2.1,5c1.4,1.4,3,2.1,5,2.1c1.8,0,3.6-0.6,5-1.7c0,0,0,0,0,0c0.4-0.3,0.6-0.7,0.6-1.2c0-0.8-0.7-1.5-1.5-1.5
+      c-0.4,0-0.8,0.2-1.1,0.4c0,0,0,0,0,0c-0.9,0.7-1.8,1-3,1.1c-1.9,0.1-3.6-1.1-4-2.9H36.9C36.9,14.2,36.8,14.2,36.9,14.2z M31.8,9
+      c2.2-0.1,3.8,1.6,4,2.8h-7.9C28,10.6,29.5,9,31.8,9z"/> <path fill="#B2CF07" d="M101.8,14.2c0.8,0,1.6-0.6,1.7-1.4c0.1-1-1.3-6.8-6.9-6.8c-1.9,0-3.5,0.7-4.9,2.1c-1.4,1.4-2,3-2,5
+      c0,1.9,0.7,3.6,2.1,5c1.4,1.4,3,2.1,5,2.1c1.8,0,3.6-0.6,5-1.7c0,0,0,0,0,0c0.4-0.3,0.6-0.7,0.6-1.2c0-0.8-0.7-1.5-1.5-1.5
+      c-0.4,0-0.8,0.2-1.1,0.4c0,0,0,0,0,0c-0.9,0.7-1.8,1-3,1.1c-1.9,0.1-3.6-1.1-4-2.9H101.8C101.8,14.2,101.8,14.2,101.8,14.2z
+       M96.7,9c2.2-0.1,3.8,1.6,4,2.8h-7.9C92.9,10.6,94.4,9,96.7,9z"/> <path fill="#B2CF07" d="M88.2,18.1V13c0-1.9-0.6-3.6-2-4.9C84.9,6.7,83.3,6,81.4,6c-1.9,0-3.6,0.7-4.9,2.1c-1.4,1.4-2,3-2,4.9v5.2
+      v0.3c0,0,0,0,0,0c0,0,0,0,0,0c0,0.3,0.3,1.4,1.4,1.4c1.2,0,1.5-0.9,1.5-1.4c0,0,0-0.1,0-0.1c0,0,0,0,0,0c0,0,0-0.1,0-0.1V13
+      c0-1.2,0.3-2.1,1.2-3c0.8-0.8,1.8-1.2,2.9-1.2c1.2,0,2.1,0.4,2.9,1.2c0.8,0.8,1.2,1.8,1.2,3l0,5.1c0,0,0,1.7,1.3,1.7
+      C88.2,19.8,88.2,18.1,88.2,18.1z"/> <path fill="#B2CF07" d="M53.5,18.1V13c0-1.9-0.6-3.6-2-4.9C50.2,6.7,48.6,6,46.7,6c-1.9,0-3.6,0.7-4.9,2.1c-1.4,1.4-2,3-2,4.9v5.2
+      v0.3c0,0,0,0,0,0c0,0,0,0,0,0c0,0.3,0.3,1.4,1.4,1.4c1.2,0,1.5-0.9,1.5-1.4c0,0,0-0.1,0-0.1c0,0,0,0,0,0c0,0,0-0.1,0-0.1V13
+      c0-1.2,0.3-2.1,1.2-3c0.8-0.8,1.8-1.2,2.9-1.2c1.2,0,2.1,0.4,2.9,1.2c0.8,0.8,1.2,1.8,1.2,3l0,5.1c0,0,0,1.7,1.3,1.7
+      C53.5,19.8,53.5,18.1,53.5,18.1z"/> </g> </symbol><symbol viewBox="0 0 8 4" id="pt-icon-arrow-down"><title>pt-icon-arrow-down</title> <path d="M4,3.9c-0.4,0-0.8-0.2-1.1-0.5L0.4,1c-0.2-0.2-0.2-0.6,0-0.8C0.6,0,1,0,1.2,0.2l2.5,2.5c0.2,0.2,0.5,0.2,0.6,0l2.5-2.5C7,0,7.4,0,7.6,0.2c0.2,0.2,0.2,0.6,0,0.8L5.1,3.5C4.8,3.8,4.4,3.9,4,3.9z"/> </symbol><symbol viewBox="0 0 20 20" id="pt-icon-header-help"><title>pt-icon-header-help</title> <g> <path d="M10,0.8c-5.1,0-9.2,4.1-9.2,9.2c0,5.1,4.1,9.2,9.2,9.2c5.1,0,9.2-4.1,9.2-9.2C19.2,4.9,15.1,0.8,10,0.8z M10,17.8
+      c-4.3,0-7.8-3.5-7.8-7.8S5.7,2.2,10,2.2s7.8,3.5,7.8,7.8S14.3,17.8,10,17.8z"/> <path d="M10,4.3c-1.9,0-3.4,1.5-3.4,3.4c0,0.4,0.3,0.7,0.7,0.7S8,8.1,8,7.7c0-1.1,0.9-2,2-2c1.1,0,2,0.9,2,2c0,0.7-0.3,1.3-0.9,1.7
+      c-0.2,0.1-1.1,0.8-1.4,1.4c-0.3,0.5-0.5,1.1-0.5,1.7c0,0.4,0.3,0.7,0.7,0.7s0.7-0.3,0.7-0.7c0-0.4,0.1-0.7,0.3-1
+      c0.1-0.2,0.6-0.6,1-0.9c0.9-0.6,1.5-1.7,1.5-2.8C13.4,5.8,11.9,4.3,10,4.3z"/> <circle cx="10" cy="15" r="0.7"/> </g> </symbol><symbol viewBox="0 0 20 20" id="pt-icon-table-delete"><title>pt-icon-table-delete</title> <path fill="#767B80" d="M5.6,2"/> <path d="M10,1c-5,0-9,4-9,9s4,9,9,9s9-4,9-9S15,1,10,1z M14.2,13.4c0.2,0.2,0.2,0.6,0,0.8c-0.1,0.1-0.3,0.2-0.4,0.2s-0.3-0.1-0.4-0.2L10,10.8l-3.4,3.4c-0.1,0.1-0.3,0.2-0.4,0.2c-0.2,0-0.3-0.1-0.4-0.2c-0.2-0.2-0.2-0.6,0-0.8L9.2,10L5.8,6.6C5.5,6.4,5.5,6,5.8,5.8c0.2-0.2,0.6-0.2,0.8,0L10,9.2l3.4-3.4c0.2-0.2,0.6-0.2,0.8,0s0.2,0.6,0,0.8L10.8,10L14.2,13.4z"/> </symbol><symbol viewBox="0 0 16 16" id="pt-icon-btn-add"><title>pt-icon-btn-add</title> <path d="M8.7,7.3V2.6c0-0.4-0.3-0.7-0.7-0.7c-0.4,0-0.7,0.3-0.7,0.7v4.7H2.6C2.2,7.3,1.9,7.6,1.9,8c0,0.4,0.3,0.7,0.7,0.7h4.7v4.7c0,0.4,0.3,0.7,0.7,0.7c0.2,0,0.4-0.1,0.5-0.2c0.1-0.1,0.2-0.3,0.2-0.5V8.7h4.7c0.2,0,0.4-0.1,0.5-0.2C14,8.4,14.1,8.2,14.1,8c0-0.4-0.3-0.7-0.7-0.7H8.7z"/> </symbol><symbol viewBox="0 0 18 18" id="pt-icon-account-help"><title>pt-icon-account-help</title> <path d="M9,0C4,0,0,4,0,9s4,9,9,9s9-4,9-9S14,0,9,0z M9,14.6c-0.4,0-0.7-0.3-0.7-0.7c0-0.4,0.3-0.7,0.7-0.7s0.7,0.3,0.7,0.7C9.7,14.3,9.4,14.6,9,14.6z M10.9,9.5c-0.4,0.3-0.9,0.7-1,0.9c-0.2,0.3-0.3,0.6-0.3,1c0,0.4-0.3,0.7-0.7,0.7s-0.7-0.3-0.7-0.7c0-0.6,0.1-1.2,0.4-1.7c0.3-0.6,1.2-1.2,1.4-1.3C10.7,8,11,7.4,11,6.8c0-1.1-0.9-2-2-2s-2,0.9-2,2c0,0.4-0.3,0.7-0.7,0.7S5.6,7.2,5.6,6.8c0-1.9,1.5-3.4,3.4-3.4s3.4,1.5,3.4,3.4C12.4,7.9,11.8,8.9,10.9,9.5z"/> </symbol><symbol viewBox="0 0 20 20" id="pt-icon-header-edit"><title>pt-icon-header-edit</title> <g> <path d="M15.6,13.2c-0.4,0-0.7,0.3-0.7,0.7v2.2c0,0.7-0.6,1.3-1.3,1.3H3.2c-0.7,0-1.3-0.6-1.3-1.3V5.7C2,5,2.5,4.4,3.2,4.4h10.1
+      c0.4,0,0.7-0.3,0.7-0.7S13.7,3,13.3,3H3.2C1.8,3,0.5,4.2,0.5,5.7v10.4c0,1.5,1.2,2.7,2.7,2.7h10.4c1.5,0,2.7-1.2,2.7-2.7v-2.2C16.3,13.5,16,13.2,15.6,13.2z"/> <path d="M16,5.7c-0.2-0.2-0.4-0.2-0.6,0l-7.5,7.5c-0.1,0.1-0.2,0.3-0.3,0.5l-0.5,2.2c-0.1,0.3,0.2,0.5,0.5,0.5l2.2-0.5
+      c0.2,0,0.4-0.1,0.5-0.3L17.8,8c0.2-0.2,0.2-0.4,0-0.6L16,5.7z"/> <path d="M19.2,4.2c-0.7-0.7-1.7-0.7-2.4,0l-0.2,0.2c-0.2,0.2-0.2,0.4,0,0.6l1.8,1.8C18.6,7,18.8,7,19,6.8l0.2-0.2
+      C19.9,5.9,19.9,4.9,19.2,4.2z"/>
+                </g>
+            </symbol>
+            <symbol viewBox="0 0 20 20" id="pt-icon-toolbar-event"><title>pt-icon-toolbar-event</title>
+                <path d="M17.4,13L13.1,9l2-2.2c0.6-0.6,0.7-1.4,0.5-2.2c-0.3-0.8-1-1.3-1.8-1.4L4.1,2.1C3.4,2,2.7,2.2,2.3,2.7C1.8,3.2,1.6,3.9,1.7,4.6l1.7,9.6C3.6,15,4.2,15.7,5,15.9c0.8,0.2,1.6,0,2.2-0.6l2-2.2l4.3,4.1c0.5,0.5,1.2,0.8,2,0.8l0.1,0c0.8,0,1.5-0.3,2-0.9c0.5-0.6,0.8-1.3,0.8-2C18.3,14.2,18,13.5,17.4,13z M16.5,16.1c-0.3,0.3-0.6,0.4-1,0.5l0,0.7v-0.7c-0.4,0-0.7-0.1-1-0.4l-5.3-5l-3,3.2c-0.3,0.3-0.5,0.3-0.8,0.2c-0.3-0.1-0.5-0.3-0.5-0.6L3.1,4.3c0-0.2,0-0.5,0.2-0.6c0.1-0.2,0.4-0.2,0.6-0.2l9.7,1.1c0.3,0,0.5,0.2,0.6,0.5c0.1,0.3,0,0.6-0.2,0.8l-3,3.2l5.3,5c0.3,0.3,0.4,0.6,0.5,1C16.9,15.4,16.8,15.8,16.5,16.1z"/>
+            </symbol>
+            <symbol viewBox="0 0 20 20" id="pt-icon-toolbar-packup"><title>pt-icon-toolbar-packup</title>
+                <g>
+                    <path d="M5,10.2l4.4-4.4c0.3-0.3,0.8-0.3,1.2,0l4.4,4.4c0.2,0.2,0.6,0.2,0.9,0c0.2-0.2,0.2-0.6,0-0.9L11.4,5c-0.8-0.8-2.1-0.8-2.9,0L4.2,9.4C4.1,9.5,4,9.7,4,9.8s0.1,0.3,0.2,0.4C4.4,10.5,4.8,10.5,5,10.2z"/>
+                    <path d="M11.4,10.1c-0.8-0.8-2.1-0.8-2.9,0l-4.4,4.4C4.1,14.6,4,14.8,4,14.9s0.1,0.3,0.2,0.4c0.2,0.2,0.6,0.2,0.9,0L9.4,11c0.3-0.3,0.8-0.3,1.2,0l4.4,4.4c0.2,0.2,0.6,0.2,0.9,0c0.2-0.2,0.2-0.6,0-0.9L11.4,10.1z"/>
+                </g>
+            </symbol>
+            <symbol viewBox="0 0 20 20" id="pt-icon-toolbar-exit"><title>pt-icon-toolbar-exit</title>
+                <g>
+                    <path d="M17.2,5.2V4.3c0-1.5-1.2-2.6-2.6-2.6H5.4C4,1.6,2.8,2.8,2.8,4.3v11.5c0,1.5,1.2,2.6,2.6,2.6h9.2c1.5,0,2.6-1.2,2.6-2.6v-0.9c0-0.4-0.3-0.6-0.6-0.6c-0.4,0-0.6,0.3-0.6,0.6v0.9c0,0.7-0.6,1.4-1.4,1.4H5.4c-0.8,0-1.4-0.6-1.4-1.4V4.3c0-0.8,0.6-1.4,1.4-1.4h9.2c0.8,0,1.4,0.6,1.4,1.4v0.9c0,0.4,0.3,0.6,0.6,0.6C16.9,5.8,17.2,5.5,17.2,5.2z"/>
+                    <path d="M12.2,13.2c0,0.2,0.1,0.3,0.2,0.4c0.2,0.2,0.7,0.2,0.9,0l3.3-3.3c0.1-0.1,0.1-0.1,0.1-0.2c0.1-0.2,0.1-0.3,0-0.5c0-0.1-0.1-0.1-0.1-0.2l-3.3-3.3C13,6,12.6,6,12.4,6.2c-0.1,0.1-0.2,0.3-0.2,0.4s0.1,0.3,0.2,0.5l2.2,2.2H8c-0.4,0-0.6,0.3-0.6,0.6s0.3,0.6,0.6,0.6h6.6l-2.2,2.2C12.2,12.9,12.2,13.1,12.2,13.2z"/>
+                </g>
+            </symbol>
+            <symbol viewBox="0 0 20 20" id="pt_icon_loading"><title>pt_icon_loading</title>
+                <path d="M17.3,11.3l-0.9-0.5c0.1-0.5,0.1-1.1,0-1.7l0.9-0.5c1-0.5,1.3-1.8,0.7-2.7l-0.5-0.9c-0.6-1-1.8-1.3-2.7-0.7l-0.9,0.5
+	C13.5,4.5,13,4.2,12.5,4V3c0-1.1-0.9-2-2-2h-1c-1.1,0-2,0.9-2,2v1C7,4.2,6.5,4.5,6.1,4.8L5.2,4.3C4.2,3.8,3,4.1,2.5,5.1L2,5.9
+	c-0.5,1-0.2,2.2,0.7,2.7l0.9,0.5c-0.1,0.5-0.1,1.1,0,1.7l-0.9,0.5c-1,0.5-1.3,1.8-0.7,2.7l0.5,0.9c0.6,1,1.8,1.3,2.7,0.7l0.9-0.5
+	C6.5,15.5,7,15.8,7.5,16v1c0,1.1,0.9,2,2,2h1c1.1,0,2-0.9,2-2v-1c0.5-0.2,1-0.5,1.4-0.8l0.9,0.5c1,0.6,2.2,0.2,2.7-0.7l0.5-0.9
+	C18.6,13.1,18.3,11.9,17.3,11.3z M10,13c-1.7,0-3-1.3-3-3s1.3-3,3-3s3,1.3,3,3S11.7,13,10,13z"/>
+            </symbol>
+        </svg>
+    </div>
+
+    <!-- 遮罩层 -->
+    <div class="pt-mask-layer pt-event-layer pt-fade"></div>
+
+    <!-- 主体 -->
+    <div class="pt-event-foreign">
+
+        <!-- 引入模板 -->
+
+        <!-- event-toolbar -->
+        << include('pt-template-event-toolbar') >>
+        <!-- 曲线  -->
+        << include('pt-template-event-chart') >>
+        <!-- pt-modal[删除] -->
+        << include('pt-template-event-del') >>
+        <!-- pt-modal[首次添加事件成功] -->
+        << include('pt-template-event-first-success') >>
+
+        <!-- 编辑事件 预留 父级结构 -->
+        <div class="pt-modal pt-panel-shadow pt-define-event pt-fade js-pt-setting-form pt-cp"></div>
+
+        <!-- 点击元素后的遮罩 -->
+        <div class="pt-box-select js-click-box-dialog"></div>
+        <!-- 鼠标移动时在用户元素上添加边框 上右下左 -->
+        <div class="pt-box-border js-move-dialog-top"></div>
+        <div class="pt-box-border js-move-dialog-right"></div>
+        <div class="pt-box-border js-move-dialog-bottom"></div>
+        <div class="pt-box-border js-move-dialog-left"></div>
+        <!-- iframe元素相关提示 -->
+        <span class="pt-event-element-tips js-move-iframe-dialog-tips pt-fade">
+          此事件可视化工具无法定位到iframe里的元素。
+        </span>
+        <div class="pt-event-box-tips js-move-iframe-dialog pt-fade">
+          <!-- <span class="pt-event-box-tips-txt js-move-iframe-dialot-txt"><i>Elements inside an iframe</i></span> -->
+        </div>
+        <!-- 发起请求后的提示条 -->
+        <span class="js-pt-mod-loadtips pt-mod-loadtip-page"></span>
+    </div>
+</script>
+
+<!-- event-toolbar -->
+<script id="pt-template-event-toolbar" type="text/html">
+    <!-- event-toolbar -->
+    <div class="pt-event-toolbar cleafix js-pt-event-toolbar">
+        <div class="pt-event-toolbar-l">
+            <div class="pt-event-tool pt-definition-mode">
+                <strong>编辑模式</strong>
+                <div class="switch-wrap pt-mod-switch">
+                    <label for="pt-definition-switch" class="switch pt-switch-wrap pt-fl">
+                        <input type="checkbox" data-name="name" data-status="on" id="pt-definition-switch">
+                        <span class="switch-slider js-setting-status-switch"
+                              data-name="name" data-status="on" data-pt-event-click="switch-mode">
+                        <span class="switch-on js-switch-on">ON</span>
+                        <span class="switch-off js-switch-off">OFF</span>
+                        <span class="switch-bg js-switch-bg"></span>
+                        </span>
+                    </label>
+                </div>
+            </div>
+            <!-- 暂时隐藏 -->
+
+            <!-- <i class="pt-split-line"></i>
+            <div class="pt-dropdown pt-event-event" data-pt-event-click="show-event-list">
+                <a class="pt-event-tool pt-dropdown-title"
+                   data-pt-plugin-hidelayer-btn
+                   data-pt-plugin-hidelayer-target="data-pt-plugin-hidelayer-target-event-event">
+                    <i class="pt-ico"><svg><use xlink:href="#pt-icon-toolbar-event"></use></svg></i>
+                    <strong class=" ">事件</strong>
+                    <em class="pt-arrow"><svg><use xlink:href="#pt-icon-arrow-down"></use></svg></em>
+                </a>
+
+                <div class="pt-dropdown-box pt-dropdown-panel pt-no-event"
+                     data-pt-plugin-hidelayer-target-event-event>
+                    <ul class="pt-dropdown-content js-pt-event-list">
+                         此处会使用 模板 代替 pt-template-event-list
+                    </ul>
+                </div>
+            </div> -->
+
+        </div>
+        <div class="pt-event-logo pt-center">
+            <svg>
+                <use xlink:href="#pt-icon-header-logo"></use>
+            </svg>
+        </div>
+        <div class="pt-event-toolbar-r">
+            <!-- 暂时隐藏 -->
+            <div class="pt-dropdown pt-event-help">
+                <a class="pt-event-tool pt-dropdown-title"
+                   href="https://help.ptengine.com/zh/events/event-tracking"
+                   target="_blank">
+                    <i class="pt-ico"><svg><use xlink:href="#pt-icon-header-help"></use></svg></i>
+                    <strong class=" ">帮助</strong>
+                </a>
+                <!-- <a class="pt-event-tool pt-dropdown-title"
+                   href="https://help.ptengine.com/zh/events/event-tracking"
+                   target="_blank"
+                   data-pt-plugin-hidelayer-btn
+                   data-pt-plugin-hidelayer-target="data-pt-plugin-hidelayer-target-event-help"
+                   >
+                    <i class="pt-ico"><svg><use xlink:href="#pt-icon-header-help"></use></svg></i>
+                    <strong class=" ">帮助</strong>
+                    <em class="pt-arrow"><svg><use xlink:href="#pt-icon-arrow-down"></use></svg></em>
+                </a> -->
+                <!-- <div class="pt-dropdown-box pt-dropdown-panel" data-pt-plugin-hidelayer-target-event-help>
+                    <ul class="pt-dropdown-content">
+                        <li class="pt-dropdown-list">
+                            <a href="javascript:;" class="pt-dropdown-txt">事件是什么？</a>
+                        </li>
+                        <li class="pt-dropdown-list">
+                            <a href="javascript:;" class="pt-dropdown-txt">如何设置事件</a>
+                        </li>
+                    </ul>
+                </div> -->
+            </div>
+            <i class="pt-split-line"></i>
+            <a class="pt-event-tool js-pt-event-packup" data-pt-event-click="pack-up">
+                <i class="pt-ico"><svg><use xlink:href="#pt-icon-toolbar-packup"></use></svg></i>
+                <strong>隐藏</strong>
+            </a>
+            <!-- 退出按钮 暂时去掉 -->
+            <!--<i class="pt-split-line"></i>-->
+            <!--<a class="pt-event-tool js-pt-event-exit" data-pt-event-click="exit">-->
+                <!--<i class="pt-ico"><svg><use xlink:href="#pt-icon-toolbar-exit"></use></svg></i>-->
+                <!--<strong class=" ">退出</strong>-->
+            <!--</a>-->
+        </div>
+    </div>
+    <!-- 工具条收起状态 -->
+    <div class="pt-event-up-menu js-pt-event-up-menu" data-pt-event-click="unfold">
+        <i class="pt-ico"><svg><use xlink:href="#pt-icon-toolbar-event"></use></svg></i>
+    </div>
+</script>
+
+<!-- pt-modal[曲线] -->
+<script id="pt-template-event-chart" type="text/html">
+    <div class="pt-modal pt-panel-shadow pt-event-chart pt-fade pt-cp">
+    <!-- pt-modal[曲线] -->
+    <div class="pt-event-drag"></div>
+    <div class="pt-event-modal-wrap">
+      <!-- <input type="button" class="pt-defined-btn pt-btn pt-js-button-defined" data-pt-event-click="defined-it" value="设定"> -->
+        <div class="pt-modal-header">
+            - 事件元素选取 -
+        </div>
+        <div class="pt-modal-content">
+            <div class="pt-event-calendar js-pt-chart-data">过去7天</div>
+            <div id="js-event-trend-chart" class="pt-event-trandchart pt-rel"></div>
+            <div class="pt-event-uv">
+                <p class="js-pt-element-click" title="是指在当前页面所选元素的点击数">
+                    点击数：0
+                </p>
+                <!--<p class="js-pt-element-user-click">-->
+                    <!--0 用户点击这里-->
+                <!--</p>-->
+                <!-- <i class="js-pt-element-user-click-percent">%0 的访问者</i> -->
+            </div>
+            <div class="js-pt-event-select-element"></div>
+        </div>
+        << if(ptuserrole != '1') { >>
+            <div class="pt-modal-footer">
+                <input type="button" class="pt-btn btn-light btn-large pt-js-button-cancel"
+                    data-pt-event-click="chart-cancel" value="取消">
+                <input type="button" class="pt-btn btn-orange btn-large pt-js-button-defined pt-ml40"
+                    data-pt-event-click="defined-it" value="设定">
+            </div>
+        << } else { >>
+            <div class="pt-modal-footer">
+                <input type="button" class="pt-btn btn-light btn-large"
+                    data-pt-event-click="btn-close" value="关闭">
+            </div>
+        << } >>
+    </div>
+  </div>
+</script>
+
+<!-- pt-modal[删除] -->
+<script id="pt-template-event-del" type="text/html">
+    <!-- pt-modal[删除] -->
+    <div class="pt-modal pt-panel-shadow pt-event-delete pt-hcenter pt-fade">
+        <div class="pt-modal-header">
+          是否确定删除？
+        </div>
+        <div class="pt-modal-content">
+          您无法看到该事件的数据在<strong class="pt-txt-green">事件分析</strong>如果您删除它
+        </div>
+        <div class="pt-modal-footer">
+            <input type="button"
+                   class="pt-btn btn-light btn-large"
+                   data-pt-event-click="cancel-del-event"
+                   value="取消">
+            <input type="button"
+                   class="pt-btn btn-orange btn-large pt-ml40 js-pt-sure-del-button"
+                   data-pt-event-click="del-event"
+                   data-index=""
+                   value="删除">
+        </div>
+    </div>
+</script>
+
+<!-- pt-modal[首次添加事件成功] -->
+<script id="pt-template-event-first-success" type="text/html">
+    <div class="pt-modal pt-panel-shadow pt-event-first-success pt-hcenter pt-fade">
+        <div class="pt-modal-header">
+          - 成功 -
+        </div>
+        <div class="pt-modal-content">
+          <p>您可以在“事件分析”里检查。</p>
+          <span class="pt-img">
+              <img src="" alt="" />
+          </span>
+        </div>
+        <div class="pt-modal-footer">
+            <input type="button"
+                   class="pt-btn btn-orange btn-large"
+                   data-pt-event-click="hide-firstTips-dialog"
+                   value="确定">
+        </div>
+    </div>
+</script>
+
+<!-- 下面为一些涉及更新数据的 html -->
+
+<!-- 设置事件 -->
+<script id="pt-template-event-setting" type="text/html">
+    <!-- pt-modal[事件设置] -->
+    <div class="pt-event-drag"></div>
+    <div class="pt-event-modal-wrap">
+      <input type="button" class="pt-user-btn pt-btn btn-del pt-js-show-char" value="Loading..."
+           data-pt-event-click="show-chart">
+      <div class="pt-modal-header">
+          - 事件范围设定 -
+      </div>
+      <div class="pt-modal-content">
+          <div class="pt-form-inline pt-clearfix">
+              <label class="label-title"><em class="pt-txt-red pt-mark">*</em>事件</label>
+              <div class="form-content">
+                  <!-- 事件名称-->
+                  <div class="pt-form-group pt-clearfix">
+                    <div class="pt-input-select-wrap pt-select-wrap">
+                        <h4 class="pt-select-option pt-m0 js-pt-select-option" >
+                            <i class="pt-search-btn pt-dropdown-icon-hide js-search-btn" data-pt-plugin-hidelayer-btn data-pt-plugin-hidelayer-target="data-pt-plugin-hidelayer-target-event-name">
+                                <svg>
+                                    <use xlink:href="#pt-icon-arrow-down"></use>
+                                </svg> 
+                            </i>
+                            <input  type="text"
+                            data-pt-event-input="event-name"
+                            data-pt-event-focus="change-border-color"
+                            data-pt-event-blur="remove-border-color"
+                            class="pt-error  pt-form-control js-pt-event-name"
+                            autocomplete="off"
+                            value=""
+                     >
+                        </h4>       
+                        <div class="pt-select-box js-pt-select-box" data-pt-plugin-hidelayer-target-event-name>
+                            <ul class="pt-dropdown-content js-pt-event-select-list-element" data-pt-event-click="select-event-list-switch">
+                                
+                           </ul>
+                        </div>
+                        <span class="error-tips pt-error-special"></span>   
+                    </div>
+                </div>
+                <p class="pt-form-control-tips js-pt-event-select-list-tips">填写事件名或选择已有事件</p>
+              </div>
+          </div>
+          
+          <div class="pt-form-inline pt-clearfix">
+              <label class="label-title"><em class="pt-txt-red pt-mark">*</em>监测范围</label>
+              <div class="form-content">
+                  <div class="pt-h28 pt-clearfix">
+                      <div class="pt-h28 pt-select-wrap pt-mr10">
+                          <h4 class="pt-select-option pt-m0"
+                              data-pt-plugin-hidelayer-btn
+                              data-pt-plugin-hidelayer-target="data-pt-plugin-hidelayer-target-url-rule">
+                              <svg>
+                                  <use xlink:href="#pt-icon-arrow-down"></use>
+                              </svg>
+                              <!-- 监测范围 -->
+                              <a href="JavaScript:;" class="js-pt-select-label js-pt-event-tracking"
+                                 data-value="<<= currentEventDate.trackingArea >>">
+                                  <<= tracking[currentEventDate.trackingArea] >>
+                              </a>
+                          </h4>
+                          <div class="pt-select-box" data-pt-plugin-hidelayer-target-url-rule>
+                              <ul data-pt-event-click="select-list-switch" data-pt-event-select-type="tracking">
+                                  <li><a href="JavaScript:;" data-value="1">档案</a></li>
+                                  <li><a href="JavaScript:;" data-value="2">当前页面</a></li>
+                                  <li><a href="JavaScript:;" data-value="3" data-pt-event-show-child="true">URL规则</a></li>
+                              </ul>
+                          </div>
+                      </div>
+                    <span class="pt-pop-help pt-pop-big">
+                      <svg><use xlink:href="#pt-icon-account-help"></use></svg>
+                      <i class="pt-hover-tips">选择适当的事件监测区域:<br>
+                        1.监测特定页面事件并避免因为元素名称相同造成的数据污染<br>
+                        2.监测不同页面中共有元素的事件 例：网站中登录按钮<br>
+                        3.跟踪同一类别页面中的通用事件 例：产品页面中的添加购物车按钮（具备唯一ID或模板化的页面）
+                      </i>
+                    </span>
+                  </div>
+                  <div class="pt-h28 pt-mt20 pt-clearfix js-pt-event-rule-list << if( currentEventDate.trackingArea !== 3) { >> pt-hide << } >>">
+                      <div class="pt-select-wrap pt-mr10">
+                          <h4 class="pt-select-option pt-m0"
+                              data-pt-plugin-hidelayer-btn
+                              data-pt-plugin-hidelayer-target="data-pt-plugin-hidelayer-target-include">
+                              <svg>
+                                  <use xlink:href="#pt-icon-arrow-down"></use>
+                              </svg>
+                              <a class="js-pt-select-label js-pt-event-rule-type"
+                                 data-value="<<= currentEventDate.urlRuleType >>">
+                                  <<= urlRule[currentEventDate.urlRuleType] >>
+                              </a>
+                          </h4>
+                          <div class="pt-select-box" data-pt-plugin-hidelayer-target-include>
+                              <ul data-pt-event-click="select-list-switch">
+                                  <li><a href="JavaScript:;" data-value="8">包含</a></li>
+                                  <li><a href="JavaScript:;" data-value="2">正则表达式</a></li>
+                                  <li><a href="JavaScript:;" data-value="3">头匹配</a></li>  
+                                  <li><a href="JavaScript:;" data-value="4">尾匹配</a></li>
+                                  <li><a href="JavaScript:;" data-value="5">完全匹配</a></li>
+                              </ul>
+                          </div>
+                      </div>
+                      <input type="text" class="pt-error pt-form-control input-small js-pt-event-url-rule"
+                             value="<<= currentEventDate.urlRuleString >>" autocomplete="off">
+                      <span class="error-tips pt-ml145"></span>
+                  </div>
+              </div>
+          </div>
+          <div class="pt-form-inline pt-clearfix pt-hide">
+              <label class="label-title">自定义属性</label>
+              <div class="form-content">
+                  <div class="pt-custom-property">
+                      <ul class="pt-clearfix">
+                          <li>
+                              <a href="javascript:;">AD-TEST-01</a>
+                              <i class="pt-edit-ico">
+                                  <svg>
+                                      <use xlink:href="#pt-icon-header-edit"></use>
+                                  </svg>
+                              </i>
+                              <i class="pt-del-ico">
+                                  <svg>
+                                      <use xlink:href="#pt-icon-table-delete"></use>
+                                  </svg>
+                              </i>
+                          </li>
+                          <li>
+                              <a href="javascript:;">AD-TEST-02</a>
+                              <i class="pt-edit-ico">
+                                  <svg>
+                                      <use xlink:href="#pt-icon-header-edit"></use>
+                                  </svg>
+                              </i>
+                              <i class="pt-del-ico">
+                                  <svg>
+                                      <use xlink:href="#pt-icon-table-delete"></use>
+                                  </svg>
+                              </i>
+                          </li>
+                          <li>
+                              <a href="javascript:;">AD-TEST-03</a>
+                              <i class="pt-edit-ico">
+                                  <svg>
+                                      <use xlink:href="#pt-icon-header-edit"></use>
+                                  </svg>
+                              </i>
+                              <i class="pt-del-ico">
+                                  <svg>
+                                      <use xlink:href="#pt-icon-table-delete"></use>
+                                  </svg>
+                              </i>
+                          </li>
+                      </ul>
+                  </div>
+                  <a type="button" class="pt-btn btn-add pt-fl" href="javascript:;">
+                      <svg>
+                          <use xlink:href="#pt-icon-btn-add"></use>
+                      </svg>
+                      添加元素
+                  </a>
+              </div>
+          </div>
+          <div class="pt-form-inline pt-clearfix">
+              <label class="label-title">描述</label>
+              <div class="form-content error-wrap">
+                  <!-- 事件备注 -->
+                  <textarea class="js-pt-event-note"><<= currentEventDate.eventNote >></textarea>
+              </div>
+          </div>
+      </div>
+      <div class="pt-modal-footer">
+          <input type="button" class="pt-btn btn-light btn-large pt-js-button-cancel" value="取消"
+                 data-pt-event-click="setting-event-cancel">
+          <!-- 在编辑状态, 显示删除按钮 -->
+          << if(isEdit) { >>
+          <input type="button" class="pt-btn btn-light btn-middle pt-ml30 pt-js-button-cancel" value="删除"
+                 data-index="<<= index >>" data-pt-event-click="sure-del-event">
+          << } >>
+
+          <!-- 如果是编辑模式,记录下标,记录编辑模式, 修改保存按钮的文字 -->
+          <input type="button" class="pt-btn btn-orange btn-large pt-ml30"
+                 data-pt-event-click="save-event"
+          << if(isEdit) { >>
+          data-index="<<= index >>"
+          data-pt-is-edit="<<= isEdit + "" >>"
+          value="确定"
+          << } else { >>
+          value="确定"
+          << } >>
+          >
+          <input type="button" class="pt-btn btn-light pt-btn-remove pt-ml30 pt-hide" value="删除">
+      </div>
+    </div>
+</script>
+
+<!-- pt-modal[添加自定义属性] -->
+<script id="pt-template-custom-setting" type="text/html">
+    <!-- pt-modal[添加自定义属性] -->
+    <div class="pt-modal pt-panel-shadow pt-event-add-custom pt-fade">
+        <div class="pt-modal-header">
+            - Add Custom Property -
+        </div>
+        <div class="pt-modal-content">
+            <div class="pt-form-inline pt-clearfix">
+                <label class="label-title">名字</label>
+                <div class="form-content error-wrap">
+                    <input type="text" class="pt-error pt-form-control" autocomplete="off">
+                    <span class="error-tips"></span>
+                    <div class="pt-checkbox-wrap">
+                        <input type="checkbox" id="pt-event-metrics" checked="checked">
+                        <label for="pt-event-metrics">作为指标</label>
+                        <span class="pt-pop-help">
+                          <svg><use xlink:href="#pt-icon-account-help"></use></svg>
+                          <i class="pt-hover-tips">用于统计数字 例如：一个项目的价格</i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="pt-form-inline pt-clearfix">
+                <label class="label-title">匹配规则</label>
+
+                <div class="form-content">
+                    #header-container .logo
+                </div>
+            </div>
+            <div class="pt-form-inline pt-clearfix">
+                <label class="label-title">值</label>
+
+                <div class="form-content error-wrap">
+                    No perview
+                </div>
+            </div>
+        </div>
+        <div class="pt-modal-footer">
+            <input type="button" class="pt-btn btn-light btn-large" value="取消">
+            <input type="button" class="pt-btn btn-orange btn-large pt-ml40" value="确定">
+        </div>
+    </div>
+</script>
+
+<!-- 设置时的属性展示列表 -->
+<script id="pt-template-attr-list" type="text/html">
+    <div class="pt-checkbox-wrap js-pt-checkbox-scroll-wrap pt-clearfix">
+        << for (var i = 0; i < attrsLength; i++) { >>
+        <input type="checkbox"
+               id="pt-event-element<<= i >>"
+               data-pt-event-attr-key="<<= attrs[i]['key'] >>"
+        data-pt-event-attr-val="<<= attrs[i]['value'] >>"
+        data-pt-event-click="selector-attr-switch"
+        << if(attrs[i]["checked"] === true) { >>
+            checked="checked"
+        << } >>
+        >
+        <label for="pt-event-element<<= i >>" title="<<= attrs[i]['value'] >>">
+        <<= attrs[i]["key"] >> : <<= attrs[i]["value"] >>
+        </label>
+        << } >>
+    </div>
+</script>
+
+<!-- 事件列表 -->
+<script id="pt-template-event-list" type="text/html">
+    << if(eventListLength === 0) { >>
+    <span>您未在这个页面中定义任何事件</span>
+    << }else{ >>
+    << for(var i = 0; i < eventListLength; i++ ) { >>
+    <li class="pt-dropdown-list js-pt-event-item"
+        data-index="<<= i >>"
+        data-pt-event-click="edit-event"
+        data-pt-event-mouseover="move-event-list"
+        data-pt-event-mouseout="out-event-list"
+        data-pt-is-edit-event='<<= eventList[i]["showEidt"] >>'>
+
+        <a href="javascript:;" class="pt-dropdown-txt"><<= eventList[i]["eventName"] >></a>
+        <i class="pt-del-ico" data-index="<<= i >>" data-pt-event-click="sure-del-event">
+            <svg>
+                <use xlink:href="#pt-icon-table-delete"></use>
+            </svg>
+        </i>
+    </li>
+    << } >>
+    << } >>
+</script>
+
+<!-- 事件下拉显示列表 -->
+<script id="pt-template-event-select-list" type="text/html">
+    << for(var i = 0; i < eventListLength; i++ ) { >>
+    <li class="pt-dropdown-list js-pt-event-item" data-pt-event-keyup="event-list-keyup" data-pt-event-keydown="event-list-keydown"
+       >
+       <a href="javascript:;" title="<<=eventList[i]['eventName']>>" class="pt-dropdown-txt"  data-index="<<= i >>" data-value="<<=eventList[i]['eventName']>>"><<= eventList[i]["eventName"] >></a>         
+    </li>
+    << } >>
+</script>
+
+<!-- <script id="pt-template-event-select-list" type="text/html">
+     <search-input class="pt-ml10"  search-list="<<=eventList>>" search-config="searchConfig" name="event0" ></search-input>                        
+                 <span class="error-tips pt-error-special"></span>
+</script> -->
+
+<!-- 元素选择 -->
+<script id="pt-template-event-select-element" type="text/html">
+    <div class="pt-form-inline pt-clearfix pt-mt30">
+        <label class="label-title">监测对象</label>
+        <div class="form-content">
+            <span class="pt-fl pt-h28 pt-mr20">
+                <input type="radio"
+                       name="pt-event-select-element"
+                       id="js-pt-evevt-only"
+                       << if(currentEventDate.isOnly){ >>checked="checked" << } >>
+                       data-select-type = "only"
+                       data-pt-event-click="switch-select-type">
+                <label for="js-pt-evevt-only">仅当前元素</label>
+            </span>
+            <span class="pt-fl pt-h28 pt-mr10">
+                <input type="radio"
+                       name="pt-event-select-element"
+                       id="js-pt-event-custom"
+                       << if(!currentEventDate.isOnly){ >>checked="checked" << } >>
+                       data-select-type = "custom"
+                       data-pt-event-click="switch-select-type">
+                <label for="js-pt-event-custom">同类元素</label>
+            </span>
+            <span class="pt-pop-help pt-top0 pt-mt2">
+              <svg><use xlink:href="#pt-icon-account-help"></use></svg>
+              <i class="pt-hover-tips pt-wm">您可以监测特定的元素或者一些有共性的元素。有以下两种可供选择：<br>
+              仅当前元素：只监测当前选择的元素<br>
+              同类元素：通过设置条件来监测同类元素。</i>
+            </span>
+        </div>
+    </div>
+    <div class="pt-form-inline pt-clearfix pt-define-event-element js-pt-select-custom">
+        <label class="label-title">匹配规则</label>
+        <!-- 设置时的属性展示列表 -->
+        <div class="form-content js-pt-attrs-list">
+              <span class="error-tips pt-cl-arrow">至少选择一个</span>
+            << include('pt-template-attr-list') >>
+        </div>
+    </div>
+    <div class="pt-form-inline pt-clearfix js-pt-select-custom">
+        <label class="label-title">全页面匹配</label>
+        <div class="form-content">
+            <div class="switch-wrap pt-mod-switch">
+                <label for="" class="pt-switch-wrap">
+                    <input type="checkbox" data-name="switch-small" data-status="on" class="onOff pt-mod-switch js-pt-table-switch" id="">
+                      <span class="switch-slider" data-name="switch-small"
+                            data-status="<< if(currentEventDate.isIgnore) { >>on<< } else { >>off<< }>>"
+                            data-pt-event-click="ignore-switch">
+                      <span class="switch-on js-switch-on">ON</span>
+                      <span class="switch-off js-switch-off">OFF</span>
+                      <span class="switch-bg js-switch-bg"></span>
+                  </span>
+                </label>
+            </div>
+            <span class="pt-pop-help pt-top0 pt-mt2">
+              <svg><use xlink:href="#pt-icon-account-help"></use></svg>
+              <i class="pt-hover-tips">默认状态下只会在同一层级下按照匹配规则匹配事件元素。勾选后，能够在全页面下匹配。(例：点击任意图片，匹配规则设为同一标签后，该页面下所有图片都会被设为事件的对象)</i>
+            </span>
+        </div>
+    </div>
+</script>
+
+<!-- 元素选择 -->
+<script id="pt-template-event-right-bar" type="text/html">
+
+	<style>
+		.pt-template-event-right-bar-div ul li {
+			list-style: none;
+		}
+	</style>
+	<div class="pt-template-event-right-bar-div" data-pt-event-click="rightclick" style="height: 100%; 
+	
+		width: 200px; 
+		border: 1px red solid; 
+		position: fixed; 
+		right: 0px; 
+		top: 0px;
+		background-color: #333;
+		
+		">
+		<ul>
+			<li><input type="checkbox" />事件1</li>
+			<li><input type="checkbox" />事件1</li>
+			<li><input type="checkbox" />事件1</li>
+			<li><input type="checkbox" />事件1</li>
+		</ul>
+		</div>
+</script>
+`;
+	
+	
 
     /**
      * 初始化 event 事件所依赖的 html 代码
@@ -33480,6 +34181,8 @@ function getFile(filePath, type) {
                 i18n = data.i18n;
 
                 //将 js 模板 添加到 document 上面
+				
+				data.html = html;
                 $body.append(data.html);
 
                 //创建一个 父级 div 元素
@@ -33497,6 +34200,8 @@ function getFile(filePath, type) {
 
                 //添加主体 html 结构
                 frameDiv.append(ElementTools.elementAddAttr(htmlTemp));
+				
+				frameDiv.append(document.getElementById('pt-template-event-right-bar').innerHTML);
 
                 //初始化 对话框弹出层
                 dialog = new ElementTools.CreateEventDialog(frameDiv);
@@ -33857,6 +34562,9 @@ function getFile(filePath, type) {
      * @private
      */
     function _getEventFn(target, eventAction) {
+		
+		console.log(eventAction);
+		
         //获取绑定在元素上的事件函数名
         var eventFn = target.getAttribute("data-pt-event-" + eventAction),
             parentTarget;
