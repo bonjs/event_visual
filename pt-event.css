@@ -3597,6 +3597,41 @@ body{
 .pt-event-toolbar .pt-event-help .pt-dropdown-box:before{
 	right: 27px;
 }
+
+
+/* pt-event-right-bar*/
+
+.pt-event-right-bar {
+	width: 200px;
+	height: 100%;
+	position: fixed; 
+	right: 0px; 
+	top: 0px;
+	background-color: #333;
+	color: white;
+	
+	
+	transition: right 0.7s;
+	-moz-transition: right 0.7s; /* Firefox 4 */
+	-webkit-transition: right 0.7s; /* Safari 和 Chrome */
+	-o-transition: right 0.7s; /* Opera */
+}
+.pt-event-right-bar ul li {
+	list-style: none;
+}
+
+.pt-event-right-bar .pt-right-bar-handle {
+	width: 11px;
+    height: 51px;
+    position: absolute;
+    top: 50%;
+    bottom: 50%;
+	left: -11px;
+	background: green;
+}
+
+
+
 /* pt-event-chart */
 .pt-event-chart .pt-event-calendar{
 	font-size: 13px;

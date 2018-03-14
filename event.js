@@ -30440,7 +30440,7 @@ var originalDomain = localStorage["ptengineDomain"],    //原始 domain.此处�
 
     //选择模式 与 收起状态 暂不维态
     // isSelect = localStorage["ptengineIsSelect"] !== "false",  //标志位 true 选择编辑模式  false 浏览模式
-    isSelect = localStorage["ptengineIsSelect"] = true,  //标志位 true 选择编辑模式  false 浏览模式, 暂时改为默认 true
+    isSelect = localStorage["ptengineIsSelect"] = false,  //标志位 true 选择编辑模式  false 浏览模式, 暂时改为默认 true
 
     isPackUp = localStorage["ptengineIsPackUp"] = false,  //工具条 是否是收起状态 false 展开, true 收起状态
     // isPackUp = localStorage["ptengineIsPackUp"] === undefined ? false : localStorage["ptengineIsPackUp"] !== "false",  //工具条 是否是收起状态 false 展开, true 收起状态
@@ -32567,13 +32567,17 @@ function getFile(filePath, type) {
 
             parentTarget;                       //缓存父级元素 jQuery 对象
 
-        //去除 "#document", "html", "body" 的触发事件
-        if (nodeNameArr.match(target.nodeName.toLowerCase())) {
-            return;
-        }
+        
 
         //如果点击的是我们自己的元素
         if (Util.isOwn(target)) {
+			
+			//去除 "#document", "html", "body" 的触发事件
+			if (nodeNameArr.match(target.nodeName.toLowerCase())) {
+				return;
+			}
+			
+			console.log('自己的网页')
 
             //获取元素绑定的事件信息
             eventObj = _getEventFn(target, event.type);
@@ -32585,13 +32589,23 @@ function getFile(filePath, type) {
             eventFn = eventObj.eventFn;
             //根据不同的标记事件 动态调用不同的处理函数
             try {
-                if(eventFn) {
-					ownElementFn[event.type][eventFn](target, event, parentTarget);
+				
+				if(ownElementFn[event.type]) {
+					if(eventFn) {
+						ownElementFn[event.type][eventFn](target, event, parentTarget);
+					} else {
+						ownElementFn[event.type]['default'] && ownElementFn[event.type]['default'](target, event, parentTarget);
+					}
 				}
             } catch (e) {
                 console.error(e.stack);
             }
         } else if (isSelect) { //点击的为用户页面上的元素 并且开启了编辑模式
+		
+			//去除 "#document", "html", "body" 的触发事件
+			if (nodeNameArr.match(target.nodeName.toLowerCase())) {
+				return;
+			}
 
             try {
                 //根据事件类型 去调用不同的处理函数 目前支持三种 click,mouseover, mouseout
@@ -32599,7 +32613,26 @@ function getFile(filePath, type) {
             } catch (e) {
                 console.error(e.stack);
             }
-        }
+        } else {
+			try {
+				console.log(event.type);
+                if(event.type == 'mousedown') {
+					
+					//alert('用户网页　click 隐藏侧边栏');
+					
+					$('.js-pt-event-right-bar').css('right', '-200px');
+					isSelect = true;
+					/*
+					if (!isSelect) {
+						$(".js-setting-status-switch").trigger("click");
+					}
+					*/
+				}
+				
+            } catch (e) {
+                console.error(e.stack);
+            }
+		}
 
     };
 
@@ -32782,7 +32815,7 @@ function getFile(filePath, type) {
          */
         "mouseout": function (target, event, relatedTarget) {
             //隐藏遮罩 使用节流函数 处理鼠标移动频率快的情况
-            //Util.throttle(moveDialog, moveDialog.hide, relatedTarget);
+            Util.throttle(moveDialog, moveDialog.hide, relatedTarget);
         }
     };
 
@@ -32838,8 +32871,23 @@ function getFile(filePath, type) {
 			
 			"rightclick": function() {
 				
-				alert('click')
-			},
+				function rightBarIsShow() {
+					return $('.js-pt-event-right-bar').css('right') == '0px';
+				}
+				return function() {
+					
+					//alert('rightclick　click');
+					if(rightBarIsShow()) {
+						$('.js-pt-event-right-bar').css('right', '-200px');
+						isSelect = true;
+					} else {
+						$('.js-pt-event-right-bar').css('right', '0px');
+						isSelect = false;
+					}
+					
+					//$(".js-setting-status-switch").trigger("click");
+				}
+			}(),
 			
 			
             /**
@@ -34130,29 +34178,15 @@ function getFile(filePath, type) {
 
 <!-- 元素选择 -->
 <script id="pt-template-event-right-bar" type="text/html">
-
-	<style>
-		.pt-template-event-right-bar-div ul li {
-			list-style: none;
-		}
-	</style>
-	<div class="pt-template-event-right-bar-div" data-pt-event-click="rightclick" style="height: 100%; 
-	
-		width: 200px; 
-		border: 1px red solid; 
-		position: fixed; 
-		right: 0px; 
-		top: 0px;
-		background-color: #333;
-		
-		">
+	<div class="js-pt-event-right-bar pt-event-right-bar" >
 		<ul>
 			<li><input type="checkbox" />事件1</li>
 			<li><input type="checkbox" />事件1</li>
 			<li><input type="checkbox" />事件1</li>
 			<li><input type="checkbox" />事件1</li>
 		</ul>
-		</div>
+		<div class="js-pt-right-bar-handle pt-right-bar-handle" data-pt-event-click="rightclick"></div>
+	</div>
 </script>
 `;
 	
