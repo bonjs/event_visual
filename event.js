@@ -32911,11 +32911,11 @@ function getFile(filePath, type) {
 		eventList = [{
 				"eventName" : "添加购物车",
 				"dataVersion" : "v3",
-				sameSelector: 'body>div:eq(1)>div:eq(0)',
+				selector: 'body>div:eq(1)>div:eq(0)',
 			}, {
 				"eventName" : "b",
 				"dataVersion" : "v3",
-				sameSelector: 'body>div:eq(1)',
+				selector: 'body>div:eq(1)',
 			}
 			
 			/*, {
@@ -32984,11 +32984,11 @@ function getFile(filePath, type) {
 					allEventList = [{
 							"eventName" : "添加购物车",
 							"dataVersion" : "v3",
-							sameSelector: 'body>div:eq(1)>div:eq(0)',
+							selector: 'body>div:eq(1)>div:eq(0)',
 						}, {
 							"eventName" : "b",
 							"dataVersion" : "v3",
-							sameSelector: 'body>div:eq(1)',
+							selector: 'body>div:eq(1)',
 						}
 						
 						/*, {
@@ -33024,10 +33024,11 @@ function getFile(filePath, type) {
                         }
 						
 						
-						var offset = $(ev.sameSelector).offset();
+						// 添加遮罩层
+						var offset = $(ev.selector).offset();
 						var overlay = $('<div class="pt-event-overlay"></div>');
-						overlay.height($(ev.sameSelector).height());
-						overlay.width($(ev.sameSelector).width());
+						overlay.height($(ev.selector).height());
+						overlay.width($(ev.selector).width());
 						overlay.css('left', offset.left);
 						overlay.css('top', offset.top);
 						$(document.body).append(overlay);
