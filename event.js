@@ -32897,64 +32897,111 @@ function getFile(filePath, type) {
 
                 /** 需求更改, 此处先暂时注释 */
                 // if (!getEventDate) {    //请 event list 求数据
-                //
-                //     var $list = $(".js-pt-event-list");
-                //     //增加loading
-                //     $list.empty().html("<span>Loading...</span>");
-                //
-                //     //后台获取符合页面的事件 请求数据
-                //     Data.getEventDataList().done(function (msg) {
-                //
-                //         eventList = msg.content.eventList || [];
-                //
-                //         allEventLength = msg.content.consumptionEvent;
-                //
-                //         //ptengine 传过来的事件 ID
-                //         var eventId = +params["ptengineEditEvent"];
-                //
-                //         eventList.forEach(function (val) {
-                //
-                //             val.eventName = decodeURIComponent(val.eventName);
-                //             val.sameSelector = decodeURIComponent(val.sameSelector);
-                //             //如果含有 event id 进行标记
-                //             val.eventId === eventId ? (val.showEidt = "true") : "";
-                //             //将json串转换为对象
-                //             val.selectorConf = JSON.parse(val.selectorConf);
-                //             //将 isOnly 转换为 boolean 类型
-                //             val.isOnly = val.isOnly === "true";
-                //             //将ignore 转换为 boolean 类型
-                //             val.isIgnore = val.isIgnore === "true";
-                //         });
-                //
-                //         //渲染 js 模板
-                //         var html = ptTemplate('pt-template-event-list', {
-                //             eventList: eventList,
-                //             eventListLength: eventList.length
-                //         });
-                //
-                //         //在刚进入页面时,如果没查到元素, 重新在页面获取一次
-                //         $list.length === 0 && ($list = $(".js-pt-event-list"));
-                //         //更新到页面
-                //         $list.empty()
-                //             .html(ElementTools.elementAddAttr(html)).promise().done(function(){
-                //             //增加滚动条
-                //             Util.addScroll($list, 280);
-                //
-                //             //如果 url 中含有含有开启事件的字段, 并且未处理过edit事件, 触发点击事件
-                //             if(eventId && !editEventFromPT){
-                //                 //激活点击事件
-                //                 ownElementFn.click["edit-event"]($(".js-pt-event-item[data-pt-is-edit-event='true']").get(0));
-                //                 //变更标识
-                //                 editEventFromPT = true;
-                //             }
-                //         });
-                //
-                //         $list.length > 0 && eventList.length > 0 && (getEventDate = true);
-                //     });
-                //
+
+     var $list = $(".js-pt-event-list");
+     //增加loading
+     $list.empty().html("<span>Loading...</span>");
+
+     //后台获取符合页面的事件 请求数据
+     Data.getEventDataList().done(function (msg) {
+
+         eventList = msg.content.eventList || [];
+		 
+		 // 调试　
+		eventList = [{
+				"eventName" : "添加购物车",
+				"dataVersion" : "v3",
+				sameSelector: 'body>div:eq(1)>div:eq(0)',
+			}, {
+				"eventName" : "b",
+				"dataVersion" : "v3",
+				sameSelector: 'body>div:eq(1)',
+			}
+			
+			/*, {
+				"eventName" : "a2",
+				"dataVersion" : "v3",
+				selector: '',
+			}, {
+				"eventName" : "a",
+				"dataVersion" : "v3",
+				selector: ''
+			}
+			*/
+		];
+
+         allEventLength = msg.content.consumptionEvent;
+
+         //ptengine 传过来的事件 ID
+         var eventId = +params["ptengineEditEvent"];
+
+         eventList.forEach(function (val) {
+
+             val.eventName = decodeURIComponent(val.eventName);
+             val.sameSelector = decodeURIComponent(val.sameSelector);
+             //如果含有 event id 进行标记
+             val.eventId === eventId ? (val.showEidt = "true") : "";
+             //将json串转换为对象
+             //val.selectorConf = JSON.parse(val.selectorConf);
+             //将 isOnly 转换为 boolean 类型
+             val.isOnly = val.isOnly === "true";
+             //将ignore 转换为 boolean 类型
+             val.isIgnore = val.isIgnore === "true";
+         });
+
+         //渲染 js 模板
+         var html = ptTemplate('pt-template-event-list', {
+             eventList: eventList,
+             eventListLength: eventList.length
+         });
+
+         //在刚进入页面时,如果没查到元素, 重新在页面获取一次
+         $list.length === 0 && ($list = $(".js-pt-event-list"));
+         //更新到页面
+         $list.empty()
+             .html(ElementTools.elementAddAttr(html)).promise().done(function(){
+             //增加滚动条
+             Util.addScroll($list, 280);
+
+             //如果 url 中含有含有开启事件的字段, 并且未处理过edit事件, 触发点击事件
+             if(eventId && !editEventFromPT){
+                 //激活点击事件
+                 ownElementFn.click["edit-event"]($(".js-pt-event-item[data-pt-is-edit-event='true']").get(0));
+                 //变更标识
+                 editEventFromPT = true;
+             }
+         });
+
+         $list.length > 0 && eventList.length > 0 && (getEventDate = true);
+     });
+
                 //获取全部的数据
                 Data.getEventAllEvent().done(function (msg) {
                     var allEventList = msg.content.eventList || [];
+					
+					
+					// 调试　
+					allEventList = [{
+							"eventName" : "添加购物车",
+							"dataVersion" : "v3",
+							sameSelector: 'body>div:eq(1)>div:eq(0)',
+						}, {
+							"eventName" : "b",
+							"dataVersion" : "v3",
+							sameSelector: 'body>div:eq(1)',
+						}
+						
+						/*, {
+							"eventName" : "a2",
+							"dataVersion" : "v3",
+							selector: '',
+						}, {
+							"eventName" : "a",
+							"dataVersion" : "v3",
+							selector: ''
+						}
+						*/
+					];
 
                     //重新缓存 eventName
                     eventNameCache.length = 0;
@@ -33655,7 +33702,7 @@ function getFile(filePath, type) {
             </div>
             <!-- 暂时隐藏 -->
 
-            <!-- <i class="pt-split-line"></i>
+            <i class="pt-split-line"></i>
             <div class="pt-dropdown pt-event-event" data-pt-event-click="show-event-list">
                 <a class="pt-event-tool pt-dropdown-title"
                    data-pt-plugin-hidelayer-btn
@@ -33671,7 +33718,7 @@ function getFile(filePath, type) {
                          此处会使用 模板 代替 pt-template-event-list
                     </ul>
                 </div>
-            </div> -->
+            </div>
 
         </div>
         <div class="pt-event-logo pt-center">
@@ -34179,6 +34226,7 @@ function getFile(filePath, type) {
 <!-- 元素选择 -->
 <script id="pt-template-event-right-bar" type="text/html">
 	<div class="js-pt-event-right-bar pt-event-right-bar" >
+	
 		<ul>
 			<li><input type="checkbox" />事件1</li>
 			<li><input type="checkbox" />事件1</li>
