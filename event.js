@@ -32890,6 +32890,19 @@ function getFile(filePath, type) {
 			}(),
 			
 			
+			"check-event": function(target, e, parentTarget) {
+				
+				var id = target.getAttribute('data-id');
+				
+				eventList.forEach(function(it, i) {
+					it.isChecked = it.id == id && $(target).prop('checked');
+				});
+				
+				alert(JSON.stringify(eventList));
+				
+			},
+			
+			
             /**
              * 展开 event list
              */
@@ -32909,10 +32922,12 @@ function getFile(filePath, type) {
 		 
 		 // 调试　
 		eventList = [{
+				"id": 1,
 				"eventName" : "添加购物车",
 				"dataVersion" : "v3",
 				selector: 'body>div:eq(1)>div:eq(0)',
 			}, {
+				"id": 2,
 				"eventName" : "b",
 				"dataVersion" : "v3",
 				selector: 'body>div:eq(1)',
@@ -33713,6 +33728,7 @@ function getFile(filePath, type) {
             </div>
             <!-- 暂时隐藏 -->
 
+			<!--
             <i class="pt-split-line"></i>
             <div class="pt-dropdown pt-event-event" data-pt-event-click="show-event-list">
                 <a class="pt-event-tool pt-dropdown-title"
@@ -33730,7 +33746,7 @@ function getFile(filePath, type) {
                     </ul>
                 </div>
             </div>
-
+			-->
         </div>
         <div class="pt-event-logo pt-center">
             <svg>
@@ -33767,6 +33783,7 @@ function getFile(filePath, type) {
                     </ul>
                 </div> -->
             </div>
+			-->
             <i class="pt-split-line"></i>
             <a class="pt-event-tool js-pt-event-packup" data-pt-event-click="pack-up">
                 <i class="pt-ico"><svg><use xlink:href="#pt-icon-toolbar-packup"></use></svg></i>
@@ -34239,10 +34256,10 @@ function getFile(filePath, type) {
 	<div class="js-pt-event-right-bar pt-event-right-bar" >
 	
 		<ul>
-			<li><input type="checkbox" />事件1</li>
-			<li><input type="checkbox" />事件1</li>
-			<li><input type="checkbox" />事件1</li>
-			<li><input type="checkbox" />事件1</li>
+			<li><input type="checkbox" data-pt-event-click="check-event" data-id=1 />事件1</li>
+			<li><input type="checkbox" data-pt-event-click="check-event" data-id=2 />事件2</li>
+			<li><input type="checkbox" data-pt-event-click="check-event" data-id=3 />事件3</li>
+			<li><input type="checkbox" data-pt-event-click="check-event" data-id=4 />事件4</li>
 		</ul>
 		<div class="js-pt-right-bar-handle pt-right-bar-handle" data-pt-event-click="rightclick"></div>
 	</div>
