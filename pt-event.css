@@ -3630,6 +3630,14 @@ body{
 	background: green;
 }
 
+/**/
+.pt-event-overlay {
+	
+	box-shadow: inset 0 0 58px 14px #daff00;
+	position: absolute;
+	opacity:0.5;
+}
+
 
 
 /* pt-event-chart */

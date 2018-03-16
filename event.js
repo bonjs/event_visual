@@ -33006,11 +33006,11 @@ function getFile(filePath, type) {
                     //重新缓存 eventName
                     eventNameCache.length = 0;
                     eventAllNames.length = 0;
-                    allEventList.forEach(function (val) {
+                    allEventList.forEach(function (ev) {
                         var obj = {};
                         try {
-                            obj = { "eventName": decodeURIComponent(val.eventName) };//用于显示事件下拉框的模板
-                            val = decodeURIComponent(val);
+                            obj = { "eventName": decodeURIComponent(ev.eventName) };//用于显示事件下拉框的模板
+                            var val = decodeURIComponent(ev);
                         } catch (e) {
                             //防止 decode 的数据不安全,发生异常
                         }
@@ -33022,6 +33022,16 @@ function getFile(filePath, type) {
                         if (res.length === 0) {
                             eventAllNames.push(obj);
                         }
+						
+						
+						var offset = $(ev.sameSelector).offset();
+						var overlay = $('<div class="pt-event-overlay"></div>');
+						overlay.height($(ev.sameSelector).height());
+						overlay.width($(ev.sameSelector).width());
+						overlay.css('left', offset.left);
+						overlay.css('top', offset.top);
+						$(document.body).append(overlay);
+							
 
                     });
                 });
