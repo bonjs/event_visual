@@ -3627,11 +3627,12 @@ body{
 .pt-event-right-bar .pt-right-bar-handle {
 	width: 11px;
     height: 51px;
+	line-height: 50px;
     position: absolute;
     top: 50%;
     bottom: 50%;
 	left: -11px;
-	background: green;
+	background: #2b2323ba;
 }
 
 /**/

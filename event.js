@@ -32546,7 +32546,7 @@ function getFile(filePath, type) {
          */
         //点击事件, 有对我们自己元素的点击处理, 也有对用户页面的点击处理. 在处理完之后 会阻止事件冒泡
         Util.addEvent(document.body, "click,mousedown,mouseover,mouseout,blur,focus,input,keyup,keydown", EventService.eventUtilFn, true);
-
+        
         //动态 处理下拉框, 因为点击事件会背阻止冒泡 只能绑定到比 body 高级的上面
         Util.addEvent(document, "click", EventService.hideLayer, true);
     };
@@ -32621,12 +32621,11 @@ function getFile(filePath, type) {
 					//alert('用户网页　click 隐藏侧边栏');
 					
 					$('.js-pt-event-right-bar').css('right', '-200px');
+					$('.js-pt-right-bar-handle').html('&lt;');
+					
 					isSelect = true;
-					/*
-					if (!isSelect) {
-						$(".js-setting-status-switch").trigger("click");
-					}
-					*/
+					
+					ownElementFn.click["show-overlay"](null, !isSelect);
 				}
 				
             } catch (e) {
@@ -32879,9 +32878,11 @@ function getFile(filePath, type) {
 					//alert('rightclick　click');
 					if(rightBarIsShow()) {
 						$('.js-pt-event-right-bar').css('right', '-200px');
+						$('.js-pt-right-bar-handle').html('&lt;');
 						isSelect = true;
 					} else {
 						$('.js-pt-event-right-bar').css('right', '0px');
+						$('.js-pt-right-bar-handle').html('&gt;');
 						isSelect = false;
 					}
 					
@@ -33026,6 +33027,17 @@ function getFile(filePath, type) {
 						*/
 					];
 					
+					
+					//渲染 js 模板
+					var html = ptTemplate('pt-template-event-right-bar', {
+						allEventList: allEventList,
+					});
+					$("#" + eventEleFrameId).append(html);
+					if(!eventList.length) {
+						alert('您尚未设置任何事件');
+						return;
+					}
+					
 
                     //重新缓存 eventName
                     eventNameCache.length = 0;
@@ -33052,11 +33064,6 @@ function getFile(filePath, type) {
                     });
 					
 					
-					//渲染 js 模板
-					var html = ptTemplate('pt-template-event-right-bar', {
-						allEventList: allEventList,
-					});
-					$("#" + eventEleFrameId).append(html);
 					
 					ownElementFn.click["show-overlay"]();
 						
@@ -33081,7 +33088,8 @@ function getFile(filePath, type) {
 					overlay.width($(ev.selector).width());
 					overlay.css('left', offset.left);
 					overlay.css('top', offset.top);
-					$('#' + eventEleFrameId).append(overlay);
+					
+					$(document.body).append(overlay);
 				}
 				
 				function hide(ev) {
@@ -34324,12 +34332,16 @@ function getFile(filePath, type) {
 			<li><input type="checkbox" data-pt-event-click="check-event" data-id=2 checked/>事件2</li>
 			<li><input type="checkbox" data-pt-event-click="check-event" data-id=3 checked/>img</li>
 			-->
-			
-			<< for(var i = 0, len = allEventList.length; i < len; i++ ) { >>
-				<li><input type="checkbox" data-pt-event-click="check-event" data-id=3 checked/><<=allEventList[i].eventName>></li>
+			<< if(allEventList.length > 0) {>>
+				<< for(var i = 0, len = allEventList.length; i < len; i++ ) { >>
+					<li><input type="checkbox" data-pt-event-click="check-event" data-id="<<=allEventList[i].id>>" checked/><<=allEventList[i].eventName>></li>
+				<< } >>
+			<< } else { >>
+				<div>尚未设置事件</div>
 			<< } >>
+			
 		</ul>
-		<div class="js-pt-right-bar-handle pt-right-bar-handle" data-pt-event-click="rightclick"></div>
+		<div class="js-pt-right-bar-handle pt-right-bar-handle" data-pt-event-click="rightclick">&gt;</div>
 	</div>
 </script>
 
