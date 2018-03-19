@@ -32615,9 +32615,9 @@ function getFile(filePath, type) {
             }
         } else {
 			try {
-				console.log(event.type);
                 if(event.type == 'mousedown') {
 					
+					console.log(event.type);
 					//alert('用户网页　click 隐藏侧边栏');
 					
 					$('.js-pt-event-right-bar').css('right', '-200px');
@@ -32885,6 +32885,7 @@ function getFile(filePath, type) {
 						isSelect = false;
 					}
 					
+					ownElementFn.click["show-overlay"](null, !isSelect);
 					//$(".js-setting-status-switch").trigger("click");
 				}
 			}(),
@@ -32894,12 +32895,18 @@ function getFile(filePath, type) {
 				
 				var id = target.getAttribute('data-id');
 				
+				/*
 				eventList.forEach(function(it, i) {
-					it.isChecked = it.id == id && $(target).prop('checked');
+					if(it.id == id) {
+						it.isChecked = $(target).prop('checked');
+					}
 				});
+				*/
 				
-				alert(JSON.stringify(eventList));
-				
+				var eventObj = eventList.filter(function(it, i) {
+					return it.id == id;
+				})[0];
+				ownElementFn.click["show-overlay"](eventObj, $(target).prop('checked'));
 			},
 			
 			
@@ -32911,99 +32918,100 @@ function getFile(filePath, type) {
                 /** 需求更改, 此处先暂时注释 */
                 // if (!getEventDate) {    //请 event list 求数据
 
-     var $list = $(".js-pt-event-list");
-     //增加loading
-     $list.empty().html("<span>Loading...</span>");
+				
+				
+				// 调试去掉
+				/*
+				 var $list = $(".js-pt-event-list");
+				 //增加loading
+				 $list.empty().html("<span>Loading...</span>");
 
-     //后台获取符合页面的事件 请求数据
-     Data.getEventDataList().done(function (msg) {
+				 //后台获取符合页面的事件 请求数据
+				 Data.getEventDataList().done(function (msg) {
 
-         eventList = msg.content.eventList || [];
-		 
-		 // 调试　
-		eventList = [{
-				"id": 1,
-				"eventName" : "添加购物车",
-				"dataVersion" : "v3",
-				selector: 'body>div:eq(1)>div:eq(0)',
-			}, {
-				"id": 2,
-				"eventName" : "b",
-				"dataVersion" : "v3",
-				selector: 'body>div:eq(1)',
-			}
-			
-			/*, {
-				"eventName" : "a2",
-				"dataVersion" : "v3",
-				selector: '',
-			}, {
-				"eventName" : "a",
-				"dataVersion" : "v3",
-				selector: ''
-			}
-			*/
-		];
+					eventList = msg.content.eventList || [];
+					 
+					 // 调试　
+					eventList = [{
+							"id": 1,
+							"eventName" : "添加购物车",
+							"dataVersion" : "v3",
+							selector: 'body>div:eq(1)>div:eq(0)',
+						}, {
+							"id": 2,
+							"eventName" : "b",
+							"dataVersion" : "v3",
+							selector: 'body>div:eq(1)',
+						}
+						
+					];
 
-         allEventLength = msg.content.consumptionEvent;
+					 allEventLength = msg.content.consumptionEvent;
 
-         //ptengine 传过来的事件 ID
-         var eventId = +params["ptengineEditEvent"];
+					 //ptengine 传过来的事件 ID
+					 var eventId = +params["ptengineEditEvent"];
 
-         eventList.forEach(function (val) {
+					 eventList.forEach(function (val) {
 
-             val.eventName = decodeURIComponent(val.eventName);
-             val.sameSelector = decodeURIComponent(val.sameSelector);
-             //如果含有 event id 进行标记
-             val.eventId === eventId ? (val.showEidt = "true") : "";
-             //将json串转换为对象
-             //val.selectorConf = JSON.parse(val.selectorConf);
-             //将 isOnly 转换为 boolean 类型
-             val.isOnly = val.isOnly === "true";
-             //将ignore 转换为 boolean 类型
-             val.isIgnore = val.isIgnore === "true";
-         });
+						 val.eventName = decodeURIComponent(val.eventName);
+						 val.sameSelector = decodeURIComponent(val.sameSelector);
+						 //如果含有 event id 进行标记
+						 val.eventId === eventId ? (val.showEidt = "true") : "";
+						 //将json串转换为对象
+						 //val.selectorConf = JSON.parse(val.selectorConf);
+						 //将 isOnly 转换为 boolean 类型
+						 val.isOnly = val.isOnly === "true";
+						 //将ignore 转换为 boolean 类型
+						 val.isIgnore = val.isIgnore === "true";
+					 });
 
-         //渲染 js 模板
-         var html = ptTemplate('pt-template-event-list', {
-             eventList: eventList,
-             eventListLength: eventList.length
-         });
+					 //渲染 js 模板
+					 var html = ptTemplate('pt-template-event-list', {
+						 eventList: eventList,
+						 eventListLength: eventList.length
+					 });
 
-         //在刚进入页面时,如果没查到元素, 重新在页面获取一次
-         $list.length === 0 && ($list = $(".js-pt-event-list"));
-         //更新到页面
-         $list.empty()
-             .html(ElementTools.elementAddAttr(html)).promise().done(function(){
-             //增加滚动条
-             Util.addScroll($list, 280);
+					 //在刚进入页面时,如果没查到元素, 重新在页面获取一次
+					 $list.length === 0 && ($list = $(".js-pt-event-list"));
+					 //更新到页面
+					 $list.empty()
+						 .html(ElementTools.elementAddAttr(html)).promise().done(function(){
+						 //增加滚动条
+						 Util.addScroll($list, 280);
 
-             //如果 url 中含有含有开启事件的字段, 并且未处理过edit事件, 触发点击事件
-             if(eventId && !editEventFromPT){
-                 //激活点击事件
-                 ownElementFn.click["edit-event"]($(".js-pt-event-item[data-pt-is-edit-event='true']").get(0));
-                 //变更标识
-                 editEventFromPT = true;
-             }
-         });
+						 //如果 url 中含有含有开启事件的字段, 并且未处理过edit事件, 触发点击事件
+						 if(eventId && !editEventFromPT){
+							 //激活点击事件
+							 ownElementFn.click["edit-event"]($(".js-pt-event-item[data-pt-is-edit-event='true']").get(0));
+							 //变更标识
+							 editEventFromPT = true;
+						 }
+					 });
 
-         $list.length > 0 && eventList.length > 0 && (getEventDate = true);
-     });
+					 $list.length > 0 && eventList.length > 0 && (getEventDate = true);
+				});
+				*/
 
                 //获取全部的数据
                 Data.getEventAllEvent().done(function (msg) {
                     var allEventList = msg.content.eventList || [];
 					
-					
 					// 调试　
-					allEventList = [{
+					eventList = allEventList = [{
+							id: 1,
 							"eventName" : "添加购物车",
 							"dataVersion" : "v3",
 							selector: 'body>div:eq(1)>div:eq(0)',
 						}, {
+							id: 2,
 							"eventName" : "b",
 							"dataVersion" : "v3",
 							selector: 'body>div:eq(1)',
+						}, {
+							id: 3,
+							"eventName": 'img',
+							"dataVersion" : "v3",
+							selector: 'body>img:eq(0)'
 						}
 						
 						/*, {
@@ -33017,6 +33025,7 @@ function getFile(filePath, type) {
 						}
 						*/
 					];
+					
 
                     //重新缓存 eventName
                     eventNameCache.length = 0;
@@ -33038,21 +33047,73 @@ function getFile(filePath, type) {
                             eventAllNames.push(obj);
                         }
 						
-						
-						// 添加遮罩层
-						var offset = $(ev.selector).offset();
-						var overlay = $('<div class="pt-event-overlay"></div>');
-						overlay.height($(ev.selector).height());
-						overlay.width($(ev.selector).width());
-						overlay.css('left', offset.left);
-						overlay.css('top', offset.top);
-						$(document.body).append(overlay);
-							
-
+						// 默认全选
+						ev.isChecked = true;
                     });
+					
+					
+					//渲染 js 模板
+					var html = ptTemplate('pt-template-event-right-bar', {
+						allEventList: allEventList,
+					});
+					$("#" + eventEleFrameId).append(html);
+					
+					ownElementFn.click["show-overlay"]();
+						
                 });
                 // }
             },
+			
+			
+			/**
+				根据勾选事件，在用户网页上显示对应的事件遮罩
+			*/
+			"show-overlay": function(eventId, isShow) {
+				
+				function show(ev) {
+					
+					hide(ev);
+					
+					// 添加遮罩层
+					var offset = $(ev.selector).offset();
+					var overlay = $('<div class="pt-event-overlay" data-event-id="' + ev.id + '"></div>');
+					overlay.height($(ev.selector).height());
+					overlay.width($(ev.selector).width());
+					overlay.css('left', offset.left);
+					overlay.css('top', offset.top);
+					$('#' + eventEleFrameId).append(overlay);
+				}
+				
+				function hide(ev) {
+					$('.pt-event-overlay[data-event-id=' + ev.id + ']').remove();
+				}
+				
+				return function(ev, isShow) {
+					
+					isShow = isShow !== false ? true : false;
+					if(ev && ev.id !== undefined) {
+						setTimeout(function() {
+							isShow ? show(ev) : hide(ev);
+						});
+						return;
+					}
+					
+					setTimeout(function() {
+						$('.pt-event-overlay').remove();
+						isShow && eventList.forEach(function(ev, i) {
+							
+							if(!ev.isChecked) {
+								return;
+							}
+							
+							show(ev);
+						});
+					});
+				};
+			}(),
+			
+			
+			
             /**
              * 编辑事件
              * @param target
@@ -33704,6 +33765,9 @@ function getFile(filePath, type) {
         </div>
         <!-- 发起请求后的提示条 -->
         <span class="js-pt-mod-loadtips pt-mod-loadtip-page"></span>
+		
+		<div class="pt-template-event-right-bar-container"></div>
+		
     </div>
 </script>
 
@@ -34254,16 +34318,26 @@ function getFile(filePath, type) {
 <!-- 元素选择 -->
 <script id="pt-template-event-right-bar" type="text/html">
 	<div class="js-pt-event-right-bar pt-event-right-bar" >
-	
 		<ul>
-			<li><input type="checkbox" data-pt-event-click="check-event" data-id=1 />事件1</li>
-			<li><input type="checkbox" data-pt-event-click="check-event" data-id=2 />事件2</li>
-			<li><input type="checkbox" data-pt-event-click="check-event" data-id=3 />事件3</li>
-			<li><input type="checkbox" data-pt-event-click="check-event" data-id=4 />事件4</li>
+			<!--
+			<li><input type="checkbox" data-pt-event-click="check-event" data-id=1 checked/>添加购物车</li>
+			<li><input type="checkbox" data-pt-event-click="check-event" data-id=2 checked/>事件2</li>
+			<li><input type="checkbox" data-pt-event-click="check-event" data-id=3 checked/>img</li>
+			-->
+			
+			<< for(var i = 0, len = allEventList.length; i < len; i++ ) { >>
+				<li><input type="checkbox" data-pt-event-click="check-event" data-id=3 checked/><<=allEventList[i].eventName>></li>
+			<< } >>
 		</ul>
 		<div class="js-pt-right-bar-handle pt-right-bar-handle" data-pt-event-click="rightclick"></div>
 	</div>
 </script>
+
+
+
+
+
+
 `;
 	
 	
@@ -34310,8 +34384,6 @@ function getFile(filePath, type) {
 
                 //添加主体 html 结构
                 frameDiv.append(ElementTools.elementAddAttr(htmlTemp));
-				
-				frameDiv.append(document.getElementById('pt-template-event-right-bar').innerHTML);
 
                 //初始化 对话框弹出层
                 dialog = new ElementTools.CreateEventDialog(frameDiv);
