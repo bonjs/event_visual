@@ -31868,6 +31868,28 @@ function getFile(filePath, type) {
             cssPath: cssPath   //结构完全相同的 css 选择器, 只到 parent 下面(所以在 body 下面可能并不是唯一的);
         };
     }
+	
+	
+	// 等　抽离新文件
+	
+	var EventHighlight = function() {
+		
+		var _class = function() {
+			
+		};
+		_class.prototype = {
+			constructor: _class,
+			test: function() {
+				
+			}
+		};
+		
+		return _class;
+	}();
+	
+	
+	
+	
 
     /**
      * 创建鼠标移动在用户页面元素上的遮罩层
@@ -32577,7 +32599,7 @@ function getFile(filePath, type) {
 				return;
 			}
 			
-			console.log('自己的网页')
+			//console.log('自己的网页')
 
             //获取元素绑定的事件信息
             eventObj = _getEventFn(target, event.type);
@@ -32620,12 +32642,10 @@ function getFile(filePath, type) {
 					console.log(event.type);
 					//alert('用户网页　click 隐藏侧边栏');
 					
-					$('.js-pt-event-right-bar').css('right', '-200px');
-					$('.js-pt-right-bar-handle').html('&lt;');
 					
 					isSelect = true;
 					
-					ownElementFn.click["show-overlay"](null, !isSelect);
+					ownElementFn.click["show-right-bar"](null, false);
 				}
 				
             } catch (e) {
@@ -32880,13 +32900,15 @@ function getFile(filePath, type) {
 						$('.js-pt-event-right-bar').css('right', '-200px');
 						$('.js-pt-right-bar-handle').html('&lt;');
 						isSelect = true;
+						$('.pt-event-mask').fadeOut();
 					} else {
 						$('.js-pt-event-right-bar').css('right', '0px');
 						$('.js-pt-right-bar-handle').html('&gt;');
 						isSelect = false;
+						$('.pt-event-mask').fadeIn();
 					}
 					
-					ownElementFn.click["show-overlay"](null, !isSelect);
+					ownElementFn.click["show-right-bar"](null, !isSelect);
 					//$(".js-setting-status-switch").trigger("click");
 				}
 			}(),
@@ -32896,25 +32918,32 @@ function getFile(filePath, type) {
 				
 				var id = target.getAttribute('data-id');
 				
-				/*
-				eventList.forEach(function(it, i) {
-					if(it.id == id) {
-						it.isChecked = $(target).prop('checked');
-					}
-				});
-				*/
 				
-				var eventObj = eventList.filter(function(it, i) {
-					return it.id == id;
-				})[0];
-				ownElementFn.click["show-overlay"](eventObj, $(target).prop('checked'));
+				setTimeout(function() {
+					
+					var isChecked = $(target).siblings(':checkbox').prop('checked');
+					console.log(isChecked);
+					
+					$('.pt-event-mask').fadeIn();
+					var eventObj = eventList.filter(function(it, i) {
+						var result = it.id == id;
+						if(result) {
+							it.isChecked = isChecked;
+						}
+						
+						return result;
+					})[0];
+					ownElementFn.click["show-right-bar"](eventObj, isChecked);
+				});
 			},
 			
 			
             /**
              * 展开 event list
              */
-            "show-event-list": function () {
+            "show-event-list": function (isShow) {
+				
+				isShow = isShow === undefined ? true : false;
 
                 /** 需求更改, 此处先暂时注释 */
                 // if (!getEventDate) {    //请 event list 求数据
@@ -33002,12 +33031,12 @@ function getFile(filePath, type) {
 							id: 1,
 							"eventName" : "添加购物车",
 							"dataVersion" : "v3",
-							selector: 'body>div:eq(1)>div:eq(0)',
+							selector: 'body>#a',
 						}, {
 							id: 2,
 							"eventName" : "b",
 							"dataVersion" : "v3",
-							selector: 'body>div:eq(1)',
+							selector: 'body>#a>#b',
 						}, {
 							id: 3,
 							"eventName": 'img',
@@ -33032,12 +33061,11 @@ function getFile(filePath, type) {
 					var html = ptTemplate('pt-template-event-right-bar', {
 						allEventList: allEventList,
 					});
-					$("#" + eventEleFrameId).append(html);
+					$('.js-pt-template-event-right-bar-container').html(html);
 					if(!eventList.length) {
 						alert('您尚未设置任何事件');
 						return;
 					}
-					
 
                     //重新缓存 eventName
                     eventNameCache.length = 0;
@@ -33063,9 +33091,12 @@ function getFile(filePath, type) {
 						ev.isChecked = true;
                     });
 					
+					ownElementFn.click["show-right-bar"](null, isShow);
 					
+					if(isShow) {
+						$('.pt-event-mask').length || $(document.body).append(`<div class="pt-event-mask"></div>`);
+					}
 					
-					ownElementFn.click["show-overlay"]();
 						
                 });
                 // }
@@ -33073,32 +33104,54 @@ function getFile(filePath, type) {
 			
 			
 			/**
-				根据勾选事件，在用户网页上显示对应的事件遮罩
+				显示侧边框，同时根据勾选事件，在用户网页上显示对应的事件遮罩
 			*/
-			"show-overlay": function(eventId, isShow) {
+			"show-right-bar": function() {
 				
+				// 显示一个事件的遮罩
 				function show(ev) {
 					
-					hide(ev);
+					$('.pt-event-overlay[data-event-id=' + ev.id + ']').remove();
+					
+					var el = $(ev.selector);
+					
+					// 高亮(position为支持定位的值时才支持z-index，以便支持高亮), 同时记录原生的值，以便恢复
+					if(el.css('position') == 'static') {
+						el.attr('origin-position', el.css('position'))
+						.css('position', 'relative')
+						.attr('origin-zIndex', el.css('z-index'))
+					}
 					
 					// 添加遮罩层
 					var offset = $(ev.selector).offset();
 					var overlay = $('<div class="pt-event-overlay" data-event-id="' + ev.id + '"></div>');
-					overlay.height($(ev.selector).height());
-					overlay.width($(ev.selector).width());
+					overlay.height($(ev.selector).outerHeight());
+					overlay.width($(ev.selector).outerWidth());
 					overlay.css('left', offset.left);
 					overlay.css('top', offset.top);
 					
+					$(ev.selector).addClass('pt-highlight');
 					$(document.body).append(overlay);
+					
 				}
 				
+				// 隐藏一个事件的遮罩
 				function hide(ev) {
 					$('.pt-event-overlay[data-event-id=' + ev.id + ']').remove();
+					
+					var el = $(ev.selector);
+					// 恢复原来的position
+					if($(ev.selector).attr('origin-position') === undefined) {
+						$(ev.selector).css('position', $(ev.selector).attr('origin-position'))
+						.css('z-index', $(ev.selector).attr('origin-zIndex'));
+					}
+					$(ev.selector).removeClass('pt-highlight');
 				}
 				
 				return function(ev, isShow) {
-					
+					// isShow 默认为true
 					isShow = isShow !== false ? true : false;
+					
 					if(ev && ev.id !== undefined) {
 						setTimeout(function() {
 							isShow ? show(ev) : hide(ev);
@@ -33107,14 +33160,27 @@ function getFile(filePath, type) {
 					}
 					
 					setTimeout(function() {
+						
+						// 事件高亮显示层
 						$('.pt-event-overlay').remove();
-						isShow && eventList.forEach(function(ev, i) {
-							
-							if(!ev.isChecked) {
-								return;
+						if(isShow) {	// 
+							$('.js-pt-event-right-bar').css('right', '0px');
+							$('.js-pt-right-bar-handle').html('&gt;');
+							$('.pt-event-mask').fadeIn();
+						} else {
+							$('.js-pt-event-right-bar').css('right', '-200px');
+							$('.js-pt-right-bar-handle').html('&lt;');
+							$('.pt-event-mask').fadeOut();
+						}
+						if(!isShow) {
+							return
+						}
+						eventList.forEach(function(ev) {
+							if(ev.isChecked) {
+								show(ev);
+							} else {
+								hide(ev);
 							}
-							
-							show(ev);
 						});
 					});
 				};
@@ -33381,7 +33447,7 @@ function getFile(filePath, type) {
                         //变更标志位
                         getEventDate = false;
                         //获取事件
-                        ownElementFn.click["show-event-list"]();
+                        ownElementFn.click["show-event-list"](false);
                         // 将新增加的事件名称添加到缓存数组
                         var name = decodeURIComponent(currentEventDate.eventName);
                         if (eventNameCache.indexOf(name) === -1) {
@@ -33471,7 +33537,7 @@ function getFile(filePath, type) {
                         //变更标志位, 下次点击 事件下来列表时便于更新列表
                         getEventDate = false;
                         //获取事件
-                        ownElementFn.click["show-event-list"]();
+                        ownElementFn.click["show-event-list"](false);
                     } else {  //删除失败
                     }
                 });
@@ -33774,8 +33840,7 @@ function getFile(filePath, type) {
         <!-- 发起请求后的提示条 -->
         <span class="js-pt-mod-loadtips pt-mod-loadtip-page"></span>
 		
-		<div class="pt-template-event-right-bar-container"></div>
-		
+		<div class="js-pt-template-event-right-bar-container"></div>
     </div>
 </script>
 
@@ -33855,7 +33920,6 @@ function getFile(filePath, type) {
                     </ul>
                 </div> -->
             </div>
-			-->
             <i class="pt-split-line"></i>
             <a class="pt-event-tool js-pt-event-packup" data-pt-event-click="pack-up">
                 <i class="pt-ico"><svg><use xlink:href="#pt-icon-toolbar-packup"></use></svg></i>
@@ -34334,7 +34398,11 @@ function getFile(filePath, type) {
 			-->
 			<< if(allEventList.length > 0) {>>
 				<< for(var i = 0, len = allEventList.length; i < len; i++ ) { >>
-					<li><input type="checkbox" data-pt-event-click="check-event" data-id="<<=allEventList[i].id>>" checked/><<=allEventList[i].eventName>></li>
+					
+					<div class="pt-checkbox-wrap  pt-clearfix" >
+						<input type="checkbox" id="pt-event-element<<=i>>" checked="checked" />
+						<label for="pt-event-element<<=i>>" title="button" data-pt-event-click="check-event" data-id="<<=allEventList[i].id>>"><<=allEventList[i].eventName>></label>
+					</div>
 				<< } >>
 			<< } else { >>
 				<div>尚未设置事件</div>
@@ -34757,7 +34825,7 @@ function getFile(filePath, type) {
      */
     function _getEventFn(target, eventAction) {
 		
-		console.log(eventAction);
+		//console.log(eventAction);
 		
         //获取绑定在元素上的事件函数名
         var eventFn = target.getAttribute("data-pt-event-" + eventAction),

@@ -3611,7 +3611,7 @@ body{
 	
 	padding-top: 60px;
 	
-	background-color: #2b2323ba;
+	background-color: rgba(0,0,0,.3);
 	color: white;
 	
 	
@@ -3624,6 +3624,24 @@ body{
 	list-style: none;
 }
 
+ .pt-highlight {
+	z-index: 1000;
+}
+
+.pt-event-mask {
+	position: fixed;
+	height: 100%;
+	background: rgba(0,0,0,.7);
+	width: 100%;
+	top: 0px;
+	left:0px;
+}
+	
+.pt-event-foreign .pt-event-right-bar .pt-checkbox-wrap{
+	height: 13px;
+    padding-left: 26px;
+}
+
 .pt-event-right-bar .pt-right-bar-handle {
 	width: 11px;
     height: 51px;
@@ -3632,7 +3650,7 @@ body{
     top: 50%;
     bottom: 50%;
 	left: -11px;
-	background: #2b2323ba;
+	background: rgba(0,0,0,.3);
 }
 
 /**/
@@ -3641,8 +3659,8 @@ body{
 	box-shadow: inset 0 0 58px 14px #daff00;
 	position: absolute;
 	opacity:0.5;
+	z-index: 1001;
 }
-
 
 
 /* pt-event-chart */
