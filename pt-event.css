@@ -3624,6 +3624,11 @@ body{
 	list-style: none;
 }
 
+.pt-event-no-event {
+	margin-top: 30px;
+    text-align: center;
+}
+
  .pt-highlight {
 	z-index: 1000;
 }

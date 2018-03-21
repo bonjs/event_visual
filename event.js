@@ -32042,6 +32042,8 @@ function getFile(filePath, type) {
             $delDialog = selector.find(".pt-event-delete"),     //删除对话框
 
             $firstTipsDialog = selector.find(".pt-event-first-success"),   // 首次添加事件提示框
+			
+            $alertDialog = selector.find(".pt-event-alert"),   // 没有事件时的提示框
 
             $layer = selector.find(".pt-event-layer"),          // 遮罩层
 
@@ -32193,6 +32195,28 @@ function getFile(filePath, type) {
                 $dialog.css(currentOffset);
                 $chartDialog.css(currentOffset);
             };
+			
+			/**
+             * alert对话框
+             */
+			_CreateEventDialog.prototype.alert = function(isShow) {
+				if(isShow === undefined) {
+					isShow = true;
+				}
+				
+				if(isShow) {
+					$alertDialog.removeClass(hideCss).addClass(showCss);
+					 //显示半透明遮罩层
+					$layer.removeClass(hideCss).addClass(showCss);
+				} else {
+					$alertDialog.removeClass(showCss).addClass(hideCss);
+					 //显示半透明遮罩层
+					$layer.removeClass(showCss).addClass(hideCss);
+					
+				}
+            };
+			
+			
 
         }
 
@@ -32567,7 +32591,8 @@ function getFile(filePath, type) {
          * click, mouseover, mouseout 都使用 EventService.eventUtilFn 一个函数
          */
         //点击事件, 有对我们自己元素的点击处理, 也有对用户页面的点击处理. 在处理完之后 会阻止事件冒泡
-        Util.addEvent(document.body, "click,mousedown,mouseover,mouseout,blur,focus,input,keyup,keydown", EventService.eventUtilFn, true);
+        //Util.addEvent(document.body, "click,mousedown,mouseover,mouseout,blur,focus,input,keyup,keydown", EventService.eventUtilFn, true);
+        Util.addEvent(document.body, "click,mousedown,keydown", EventService.eventUtilFn, true);
         
         //动态 处理下拉框, 因为点击事件会背阻止冒泡 只能绑定到比 body 高级的上面
         Util.addEvent(document, "click", EventService.hideLayer, true);
@@ -32578,6 +32603,11 @@ function getFile(filePath, type) {
      * @param event
      */
     EventService.eventUtilFn = function (event) {
+		
+		
+		if(event.type == 'click') {
+			debugger;
+		}
 
         var target = Util.getTarget(event),     //获取触发事件的元素
 
@@ -32639,9 +32669,7 @@ function getFile(filePath, type) {
 			try {
                 if(event.type == 'mousedown') {
 					
-					console.log(event.type);
 					//alert('用户网页　click 隐藏侧边栏');
-					
 					
 					isSelect = true;
 					
@@ -32888,6 +32916,11 @@ function getFile(filePath, type) {
                 }
             },
 			
+			"js-pt-ok": function() {
+				dialog.alert(false);
+				this.rightclick();
+			},
+			
 			"rightclick": function() {
 				
 				function rightBarIsShow() {
@@ -32914,15 +32947,32 @@ function getFile(filePath, type) {
 			}(),
 			
 			
+			"check-event-all": function(target) {
+				
+				var me = this;
+				setTimeout(function() {
+					var isChecked = $(target).siblings(':checkbox').prop('checked');
+					$('#pt-event-element-all').parent().siblings().find('input').prop('checked', isChecked);
+					
+					$('#pt-event-element-all').parent().siblings().find('input').each(function(i, it) {
+						me["check-event"](it);
+						eventList[i].isChecked = isChecked;
+					});
+					
+				});
+				
+			},
+			
+			
 			"check-event": function(target, e, parentTarget) {
 				
 				var id = target.getAttribute('data-id');
-				
+
 				
 				setTimeout(function() {
 					
 					var isChecked = $(target).siblings(':checkbox').prop('checked');
-					console.log(isChecked);
+					
 					
 					$('.pt-event-mask').fadeIn();
 					var eventObj = eventList.filter(function(it, i) {
@@ -32934,6 +32984,11 @@ function getFile(filePath, type) {
 						return result;
 					})[0];
 					ownElementFn.click["show-right-bar"](eventObj, isChecked);
+					
+					// 所有的事件是否已全选, 如果全选, 把全选按钮勾上
+					var isCheckAll = $('.js-pt-event-right-bar input:checked:not(#pt-event-element-all)').length == $('.js-pt-event-right-bar input:not(#pt-event-element-all)').length;
+				
+					$('#pt-event-element-all').prop('checked', isCheckAll);
 				});
 			},
 			
@@ -33057,14 +33112,21 @@ function getFile(filePath, type) {
 					];
 					
 					
+					
 					//渲染 js 模板
 					var html = ptTemplate('pt-template-event-right-bar', {
 						allEventList: allEventList,
 					});
 					$('.js-pt-template-event-right-bar-container').html(html);
 					if(!eventList.length) {
-						alert('您尚未设置任何事件');
-						return;
+						
+						
+						dialog.alert();
+						
+						//alert('您尚未设置任何事件');
+						
+						//$('.js-pt-template-event-alert').show();
+						
 					}
 
                     //重新缓存 eventName
@@ -33841,6 +33903,10 @@ function getFile(filePath, type) {
         <span class="js-pt-mod-loadtips pt-mod-loadtip-page"></span>
 		
 		<div class="js-pt-template-event-right-bar-container"></div>
+		
+		
+		<< include('pt-template-event-alert') >>
+		
     </div>
 </script>
 
@@ -34391,21 +34457,20 @@ function getFile(filePath, type) {
 <script id="pt-template-event-right-bar" type="text/html">
 	<div class="js-pt-event-right-bar pt-event-right-bar" >
 		<ul>
-			<!--
-			<li><input type="checkbox" data-pt-event-click="check-event" data-id=1 checked/>添加购物车</li>
-			<li><input type="checkbox" data-pt-event-click="check-event" data-id=2 checked/>事件2</li>
-			<li><input type="checkbox" data-pt-event-click="check-event" data-id=3 checked/>img</li>
-			-->
 			<< if(allEventList.length > 0) {>>
+				<div class="pt-checkbox-wrap pt-clearfix" >
+					<input type="checkbox" id="pt-event-element-all" checked="checked" />
+					<label for="pt-event-element-all" title="button" data-pt-event-click="check-event-all" >所有事件</label>
+				</div>
 				<< for(var i = 0, len = allEventList.length; i < len; i++ ) { >>
 					
-					<div class="pt-checkbox-wrap  pt-clearfix" >
+					<div class="pt-checkbox-wrap pt-clearfix" >
 						<input type="checkbox" id="pt-event-element<<=i>>" checked="checked" />
 						<label for="pt-event-element<<=i>>" title="button" data-pt-event-click="check-event" data-id="<<=allEventList[i].id>>"><<=allEventList[i].eventName>></label>
 					</div>
 				<< } >>
 			<< } else { >>
-				<div>尚未设置事件</div>
+				<div class="pt-event-no-event">尚未设置事件</div>
 			<< } >>
 			
 		</ul>
@@ -34414,10 +34479,19 @@ function getFile(filePath, type) {
 </script>
 
 
+<!-- alert框 -->
+<script id="pt-template-event-alert" type="text/html">
 
-
-
-
+	<div class="pt-modal pt-panel-shadow pt-event-alert pt-hcenter pt-fade out">
+        <div class="pt-modal-header" >
+          尚未设置事件
+        </div>
+        
+        <div class="pt-modal-footer">
+            <input type="button" class="pt-btn btn-orange btn-large" data-pt-event-click="js-pt-ok" value="确定" />
+        </div>
+    </div>
+</script>
 `;
 	
 	
