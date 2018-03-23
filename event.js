@@ -30440,7 +30440,7 @@ var originalDomain = localStorage["ptengineDomain"],    //原始 domain.此处�
 
     //选择模式 与 收起状态 暂不维态
     // isSelect = localStorage["ptengineIsSelect"] !== "false",  //标志位 true 选择编辑模式  false 浏览模式
-    isSelect = localStorage["ptengineIsSelect"] = false,  //标志位 true 选择编辑模式  false 浏览模式, 暂时改为默认 true
+    isSelect = localStorage["ptengineIsSelect"] = true,  //标志位 true 选择编辑模式  false 浏览模式, 暂时改为默认 true
 
     isPackUp = localStorage["ptengineIsPackUp"] = false,  //工具条 是否是收起状态 false 展开, true 收起状态
     // isPackUp = localStorage["ptengineIsPackUp"] === undefined ? false : localStorage["ptengineIsPackUp"] !== "false",  //工具条 是否是收起状态 false 展开, true 收起状态
@@ -32603,11 +32603,6 @@ function getFile(filePath, type) {
      * @param event
      */
     EventService.eventUtilFn = function (event) {
-		
-		
-		if(event.type == 'click') {
-			debugger;
-		}
 
         var target = Util.getTarget(event),     //获取触发事件的元素
 
@@ -32643,16 +32638,12 @@ function getFile(filePath, type) {
             try {
 				
 				if(ownElementFn[event.type]) {
-					if(eventFn) {
-						ownElementFn[event.type][eventFn](target, event, parentTarget);
-					} else {
-						ownElementFn[event.type]['default'] && ownElementFn[event.type]['default'](target, event, parentTarget);
-					}
+					eventFn && ownElementFn[event.type][eventFn](target, event, parentTarget);
 				}
             } catch (e) {
                 console.error(e.stack);
             }
-        } else if (isSelect) { //点击的为用户页面上的元素 并且开启了编辑模式
+        } else if (isSelect && !$('.pt-event-mask').is(':visible')) { //点击的为用户页面上的元素 并且开启了编辑模式, 并且处于显示事件dom模式(有遮罩, 右侧边展开)
 		
 			//去除 "#document", "html", "body" 的触发事件
 			if (nodeNameArr.match(target.nodeName.toLowerCase())) {
@@ -32671,7 +32662,7 @@ function getFile(filePath, type) {
 					
 					//alert('用户网页　click 隐藏侧边栏');
 					
-					isSelect = true;
+					//isSelect = true;
 					
 					ownElementFn.click["show-right-bar"](null, false);
 				}
@@ -32928,21 +32919,20 @@ function getFile(filePath, type) {
 				}
 				return function() {
 					
-					//alert('rightclick　click');
-					if(rightBarIsShow()) {
+					var isShow = rightBarIsShow();
+					if(isShow) {
 						$('.js-pt-event-right-bar').css('right', '-200px');
 						$('.js-pt-right-bar-handle').html('&lt;');
-						isSelect = true;
+						//isSelect = true;
 						$('.pt-event-mask').fadeOut();
 					} else {
 						$('.js-pt-event-right-bar').css('right', '0px');
 						$('.js-pt-right-bar-handle').html('&gt;');
-						isSelect = false;
+						//isSelect = false;
 						$('.pt-event-mask').fadeIn();
 					}
 					
-					ownElementFn.click["show-right-bar"](null, !isSelect);
-					//$(".js-setting-status-switch").trigger("click");
+					ownElementFn.click["show-right-bar"](null, !isShow);
 				}
 			}(),
 			
@@ -33016,21 +33006,6 @@ function getFile(filePath, type) {
 
 					eventList = msg.content.eventList || [];
 					 
-					 // 调试　
-					eventList = [{
-							"id": 1,
-							"eventName" : "添加购物车",
-							"dataVersion" : "v3",
-							selector: 'body>div:eq(1)>div:eq(0)',
-						}, {
-							"id": 2,
-							"eventName" : "b",
-							"dataVersion" : "v3",
-							selector: 'body>div:eq(1)',
-						}
-						
-					];
-
 					 allEventLength = msg.content.consumptionEvent;
 
 					 //ptengine 传过来的事件 ID
@@ -33079,10 +33054,10 @@ function getFile(filePath, type) {
 
                 //获取全部的数据
                 Data.getEventAllEvent().done(function (msg) {
-                    var allEventList = msg.content.eventList || [];
+                    eventList = msg.content.eventList || [];
 					
 					// 调试　
-					eventList = allEventList = [{
+					eventList = [{
 							id: 1,
 							"eventName" : "添加购物车",
 							"dataVersion" : "v3",
@@ -33115,11 +33090,10 @@ function getFile(filePath, type) {
 					
 					//渲染 js 模板
 					var html = ptTemplate('pt-template-event-right-bar', {
-						allEventList: allEventList,
+						allEventList: eventList,
 					});
 					$('.js-pt-template-event-right-bar-container').html(html);
 					if(!eventList.length) {
-						
 						
 						dialog.alert();
 						
@@ -33132,7 +33106,7 @@ function getFile(filePath, type) {
                     //重新缓存 eventName
                     eventNameCache.length = 0;
                     eventAllNames.length = 0;
-                    allEventList.forEach(function (ev) {
+                    eventList.forEach(function (ev) {
                         var obj = {};
                         try {
                             obj = { "eventName": decodeURIComponent(ev.eventName) };//用于显示事件下拉框的模板
